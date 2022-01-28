@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 
-def read(fname):
-    with open(fname) as fp:
+def read(file_name):
+    with open(file_name) as fp:
         content = fp.read()
     return content
 
