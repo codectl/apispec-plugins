@@ -18,6 +18,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
+    install_requires=["apispec>=2.0.0"],
     python_requires='>=3.6',
     license='MIT',
     zip_safe=False,
