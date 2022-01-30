@@ -24,7 +24,7 @@ class FlaskPlugin(BasePlugin):
             raise APISpecError(f"Could not find endpoint for view {view}")
 
         # WARNING: Assume 1 rule per view function for now
-        rule = app.url_map.iter_rules(endpoint=endpoint)[0]
+        rule = next(app.url_map.iter_rules(endpoint=endpoint))
         return rule
 
     def path_helper(
