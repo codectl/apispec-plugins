@@ -11,10 +11,6 @@ class FlaskPlugin(BasePlugin):
     def init_spec(self, spec):
         super().init_spec(spec)
 
-        # resource discovery
-        for _, view in current_app.view_functions.items():
-            self.path_helper(view=view, app=current_app)
-
     @staticmethod
     def _rule_view(view, app=None):
         if app is None:
