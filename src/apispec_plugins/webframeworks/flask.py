@@ -36,7 +36,7 @@ class FlaskPlugin(BasePlugin):
             app=None,
             **kwargs
     ):
-        """Path helper that allows passing a Flask view function."""
+        """Path helper hook to set path specs from a Flask view."""
         rule = self._rule_view(view, app=app)
         if hasattr(view, 'view_class') and issubclass(view.view_class, MethodView):
             for method in view.methods:
