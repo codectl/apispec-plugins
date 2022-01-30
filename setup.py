@@ -20,7 +20,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'apispec>=2.0.0',
-        'Flask>=2.0.0'
+        'Flask>=2.0.0',
     ],
     python_requires='>=3.6',
     license='MIT',
