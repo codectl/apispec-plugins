@@ -8,18 +8,20 @@ from apispec.exceptions import APISpecError
 class FlaskPlugin(BasePlugin):
     """APISpec plugin for Flask"""
 
+    def __init__(self):
+        self.spec = None
+
     def init_spec(self, spec):
         super().init_spec(spec)
+        self.spec = spec
 
     @staticmethod
     def _rule_view(view, app=None):
         if app is None:
             app = current_app
 
-        endpoint = None
-        for ept, view_func in app.view_functions.items():
-            if view_func == view:
-                endpoint = ept
+        view_funcs = app.view_functions
+        endpoint = next(endpoint for endpoint, view_func in view_funcs.items() if view_func == view)
         if not endpoint:
             raise APISpecError(f"Could not find endpoint for view {view}")
 
@@ -29,18 +31,16 @@ class FlaskPlugin(BasePlugin):
 
     def path_helper(
             self,
+            operations=None,
             view=None,
             app=None,
             **kwargs
     ):
         """Path helper that allows passing a Flask view function."""
         rule = self._rule_view(view, app=app)
-        # if hasattr(view, 'view_class') and issubclass(view.view_class, MethodView):
-        #     for method in view.methods:
-        #         if method in rule.methods:
-        #             method_name = method.lower()
-        #             method = getattr(view.view_class, method_name)
-        #             operations[method_name] = yaml_utils.load_yaml_from_docstring(
-        #                 method.__doc__
-        #             )
+        if hasattr(view, 'view_class') and issubclass(view.view_class, MethodView):
+            for method in view.methods:
+                method_name = method.lower()
+                method = getattr(view.view_class, method_name)
+                operations[method_name] = yaml_utils.load_yaml_from_docstring(method.__doc__)
         return rule.rule
