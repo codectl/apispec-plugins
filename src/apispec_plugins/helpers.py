@@ -12,7 +12,7 @@ def spec_from(specs):
     def decorator(func):
 
         docstring = func.__doc__
-        summary = docstring.split(yaml_sep)[0] if yaml_sep in docstring else None
+        summary = docstring.split(yaml_sep)[0] if docstring else None
         if 'summary' not in specs and summary:
             specs['summary'] = summary
 
