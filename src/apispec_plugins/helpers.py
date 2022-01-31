@@ -14,9 +14,11 @@ def spec_from(specs):
         docstring = func.__doc__
         summary = docstring.split(yaml_sep)[0] if docstring else None
         if 'summary' not in specs and summary:
-            specs['summary'] = summary
+            specs['summary'] = summary.strip()
 
-        func.__doc__ = yaml_utils.dict_to_yaml(specs)
+        yaml_specs = yaml_utils.dict_to_yaml(specs)
+        yaml_specs = f"{yaml_sep}\n{yaml_specs}"
+        func.__doc__ = yaml_specs
 
         @wraps(func)
         def wrapper(*args, **kwargs):
