@@ -1,9 +1,10 @@
 from flask import current_app
 from flask.views import MethodView
 
-from apispec import BasePlugin, yaml_utils
+from apispec import BasePlugin
 from apispec.exceptions import APISpecError
-from apispec_plugins import utils as spec_utils
+
+from src.apispec_plugins import utils as spec_utils
 
 
 class FlaskPlugin(BasePlugin):
@@ -43,5 +44,5 @@ class FlaskPlugin(BasePlugin):
             for method in view.methods:
                 method_name = method.lower()
                 method = getattr(view.view_class, method_name)
-                operations[method_name] = spec_utils.load_specs_from_docstring(method.__doc__)
+                operations[method_name] = spec_utils.load_method_specs(method)
         return rule.rule
