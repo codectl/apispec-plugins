@@ -31,8 +31,8 @@ def load_specs_from_docstring(docstring):
     if not docstring:
         return {}
 
-    summary = docstring.split(yaml_sep)[0] if yaml_sep in docstring else ''
     specs = yaml_utils.load_yaml_from_docstring(docstring)
+    summary = docstring.split(yaml_sep)[0] if yaml_sep in docstring else docstring
     if 'summary' not in specs and summary:
         specs['summary'] = summary.strip()
 
