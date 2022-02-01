@@ -13,7 +13,7 @@ def spec_from(specs):
 
         docstring = func.__doc__
         summary = docstring.split(yaml_sep)[0] if docstring else ''
-        summary = summary.strip()  # sanitize
+        summary = yaml_utils.trim_docstring(summary)  # sanitize
         if 'summary' not in specs and summary:
             specs['summary'] = summary
 
