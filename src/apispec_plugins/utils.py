@@ -7,12 +7,12 @@ def spec_from(specs):
 
     def decorator(func):
 
-        method_specs = load_specs_from_docstring(func.__doc__)
+        docstring_specs = load_specs_from_docstring(func.__doc__)
 
         # merge specs prioritizing decorator specs
-        method_specs.update(specs)
+        docstring_specs.update(specs)
 
-        func.__doc__ = yaml_utils.dict_to_yaml(method_specs)
+        func.specs = docstring_specs
 
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -20,6 +20,13 @@ def spec_from(specs):
         return wrapper
 
     return decorator
+
+
+def load_method_specs(method):
+    if hasattr(method, 'specs'):
+        return method.specs
+    else:
+        return load_specs_from_docstring(method.__doc__)
 
 
 def load_specs_from_docstring(docstring):
