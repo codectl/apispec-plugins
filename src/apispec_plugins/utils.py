@@ -30,6 +30,7 @@ def load_method_specs(method):
 
 
 def load_specs_from_docstring(docstring):
+    """Get dict APISpec from any given docstring."""
 
     # character sequence used by APISpec to separate
     # yaml specs from the rest of the method docstring
@@ -39,8 +40,10 @@ def load_specs_from_docstring(docstring):
         return {}
 
     specs = yaml_utils.load_yaml_from_docstring(docstring)
+
+    # extract summary out of docstring and make it part of specs
     summary = docstring.split(yaml_sep)[0] if yaml_sep in docstring else docstring
-    if 'summary' not in specs and summary:
-        specs['summary'] = summary.strip()
+    if summary and not any(key in yaml_utils.PATH_KEYS for key in specs.keys()) and 'summary' not in specs:
+        specs['summary'] = summary.strip()  # sanitize
 
     return specs
