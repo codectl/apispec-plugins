@@ -45,7 +45,9 @@ class FlaskPlugin(BasePlugin):
             for method in view.methods:
                 method_name = method.lower()
                 method = getattr(view.view_class, method_name)
-                operations[method_name] = spec_utils.load_method_specs(method)
+                operations[method_name] = spec_utils.load_method_specs(method, )
+        else:
+            operations.update(spec_utils.load_method_specs(view))
 
         rule = self._rule_view(view, app=app)
 
