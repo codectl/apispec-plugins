@@ -1,11 +1,23 @@
 import unittest
+
 import pytest
+from apispec import APISpec
+from flask import Flask
+
+from src.apispec_plugins.webframeworks.flask import FlaskPlugin
+
+
+@pytest.fixture
+def app():
+    app = Flask(__name__)
+    with app.test_request_context():
+        yield app
 
 
 @pytest.fixture(scope='module', params=("2.0.0", "3.0.0"))
 def spec(request):
     return APISpec(
-        title="Swagger Petstore",
+        title="Test Suite",
         version="1.0.0",
         openapi_version=request.param,
         plugins=(FlaskPlugin(),),
@@ -14,7 +26,4 @@ def spec(request):
 
 class TestFlaskPlugin(unittest.TestCase):
 
-    def setUp(self):
-        self.app = create_app(config_name='testing')
-        self.client = self.app.test_client()
-        self.ctx = self.app.config['APPLICATION_CONTEXT']
+    pass
