@@ -28,14 +28,14 @@ class TestFlaskPlugin:
 
     def test_function_view(self, app, spec):
         @app.route('/hi')
-        def hi():
+        def greeting():
             return 'hi'
 
         operations = {'get': {
             'parameters': [],
             'responses': {'200': {}}
         }}
-        spec.path(view=hi, operations=operations)
+        spec.path(view=greeting, operations=operations)
         paths = utils.get_paths(spec)
 
         assert 'get' in paths['/hi']
@@ -73,3 +73,52 @@ class TestFlaskPlugin:
         }
         assert paths['/hi']['post'] == {}
         assert paths['/hi']['x-extension'] == 'global metadata'
+
+    def test_path_with_multiple_methods(self, app, spec):
+        @app.route('/hello', methods=['GET', 'POST'])
+        def greeting():
+            return 'hi'
+
+        spec.path(
+            view=greeting,
+            operations=dict(
+                get={'description': 'get a greeting', 'responses': {'200': {}}},
+                post={'description': 'post a greeting', 'responses': {'200': {}}},
+            ),
+        )
+        paths = utils.get_paths(spec)
+        get_op = paths['/hello']['get']
+        post_op = paths['/hello']['post']
+
+        assert get_op['description'] == 'get a greeting'
+        assert post_op['description'] == 'post a greeting'
+
+    def test_methods_from_rule(self, app, spec):
+        class GreetingView(MethodView):
+            """The greeting view.
+            """
+
+            def get(self):
+                """Get a greeting.
+                ---
+                description: request a new greeting
+                responses:
+                    200:
+                        description: the requested greeting
+                """
+                return 'hi'
+
+            def post(self):
+                return {}
+
+            def delete(self):
+                return {}
+
+        method_view = GreetingView.as_view("hi")
+        app.add_url_rule('/hi', view_func=method_view, methods=('GET', 'POST'))
+        spec.path(view=method_view)
+        paths = utils.get_paths(spec)
+
+        assert 'get' in paths['/hi']
+        assert 'post' in paths['/hi']
+        assert 'delete' not in paths['/hi']
