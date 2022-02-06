@@ -14,8 +14,7 @@ def app():
         yield app
 
 
-@pytest.fixture(scope='module', params=('2.0.0',))
-# @pytest.fixture(scope='module', params=('2.0.0', '3.0.0'))
+@pytest.fixture(scope='module', params=('2.0.0', '3.0.0'))
 def spec(request):
     return APISpec(
         title='Test Suite',
@@ -60,14 +59,12 @@ class TestFlaskPlugin:
                 return 'hi'
 
             def post(self):
-                return 204, {}
+                return {}
 
         method_view = GreetingView.as_view('hi')
         app.add_url_rule('/hi', view_func=method_view, methods=('GET', 'POST'))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-
-        print(paths)
 
         assert paths['/hi']['get'] == {
             'summary': 'Get a greeting.',
