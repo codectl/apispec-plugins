@@ -39,16 +39,16 @@ class FlaskPlugin(BasePlugin):
             **kwargs
     ):
         """Path helper hook to set path specs from a Flask view."""
+        rule = self._rule_view(view, app=app)
 
         # populate properties for operations
         operations.update(yaml_utils.load_operations_from_docstring(view.__doc__))
         if hasattr(view, 'view_class') and issubclass(view.view_class, MethodView):
             for method in view.methods:
-                method_name = method.lower()
-                method = getattr(view.view_class, method_name)
-                operations[method_name] = spec_utils.load_method_specs(method)
-
-        rule = self._rule_view(view, app=app)
+                if method in rule.methods:
+                    method_name = method.lower()
+                    method = getattr(view.view_class, method_name)
+                    operations[method_name] = spec_utils.load_method_specs(method)
 
         # remove trailing base path
         path = rule.rule
