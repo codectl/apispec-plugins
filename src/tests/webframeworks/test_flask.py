@@ -27,9 +27,9 @@ def spec(request):
 class TestFlaskPlugin:
 
     def test_function_view(self, app, spec):
-        @app.route('/hi')
+        @app.route('/hello')
         def greeting():
-            return 'hi'
+            return 'hello'
 
         operations = {'get': {
             'parameters': [],
@@ -38,8 +38,8 @@ class TestFlaskPlugin:
         spec.path(view=greeting, operations=operations)
         paths = utils.get_paths(spec)
 
-        assert 'get' in paths['/hi']
-        assert paths['/hi'] == operations
+        assert 'get' in paths['/hello']
+        assert paths['/hello'] == operations
 
     def test_method_view(self, app, spec):
         class GreetingView(MethodView):
@@ -49,35 +49,35 @@ class TestFlaskPlugin:
             """
 
             def get(self):
-                """Get a greeting.
+                """A greeting endpoint.
                 ---
-                description: request a new greeting
+                description: get a greeting
                 responses:
                     200:
-                        description: the requested greeting
+                        description: received greeting
                 """
-                return 'hi'
+                return 'hello'
 
             def post(self):
                 return {}
 
-        method_view = GreetingView.as_view('hi')
-        app.add_url_rule('/hi', view_func=method_view, methods=('GET', 'POST'))
+        method_view = GreetingView.as_view('hello')
+        app.add_url_rule('/hello', view_func=method_view, methods=('GET', 'POST'))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
 
-        assert paths['/hi']['get'] == {
-            'summary': 'Get a greeting.',
-            'description': 'request a new greeting',
-            'responses': {'200': {'description': 'the requested greeting'}},
+        assert paths['/hello']['get'] == {
+            'summary': 'A greeting endpoint.',
+            'description': 'get a greeting',
+            'responses': {'200': {'description': 'received greeting'}},
         }
-        assert paths['/hi']['post'] == {}
-        assert paths['/hi']['x-extension'] == 'global metadata'
+        assert paths['/hello']['post'] == {}
+        assert paths['/hello']['x-extension'] == 'global metadata'
 
     def test_path_with_multiple_methods(self, app, spec):
         @app.route('/hello', methods=['GET', 'POST'])
         def greeting():
-            return 'hi'
+            return 'hello'
 
         spec.path(
             view=greeting,
@@ -99,14 +99,14 @@ class TestFlaskPlugin:
             """
 
             def get(self):
-                """Get a greeting.
+                """A greeting endpoint.
                 ---
-                description: request a new greeting
+                description: get a greeting
                 responses:
                     200:
-                        description: the requested greeting
+                        description: received greeting
                 """
-                return 'hi'
+                return 'hello'
 
             def post(self):
                 return {}
@@ -114,11 +114,46 @@ class TestFlaskPlugin:
             def delete(self):
                 return {}
 
-        method_view = GreetingView.as_view("hi")
-        app.add_url_rule('/hi', view_func=method_view, methods=('GET', 'POST'))
+        method_view = GreetingView.as_view('hello')
+        app.add_url_rule('/hello', view_func=method_view, methods=('GET', 'POST'))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
 
-        assert 'get' in paths['/hi']
-        assert 'post' in paths['/hi']
-        assert 'delete' not in paths['/hi']
+        assert 'get' in paths['/hello']
+        assert 'post' in paths['/hello']
+        assert 'delete' not in paths['/hello']
+
+    def test_integration_with_docstring_introspection(self, app, spec):
+        @app.route('/hello')
+        def greeting():
+            """A greeting endpoint.
+            ---
+            x-extension: value
+            get:
+                description: get a greeting
+                responses:
+                    200:
+                        description: received greeting
+            post:
+                description: post a greeting
+                responses:
+                    200:
+                        description: delivered greeting
+            foo:
+                description: not a valid operation
+            """
+            return 'hello'
+
+        spec.path(view=greeting)
+        paths = utils.get_paths(spec)
+
+        assert paths['/hello']['x-extension'] == 'value'
+        assert paths['/hello']['get'] == {
+            'description': 'get a greeting',
+            'responses': {'200': {'description': 'received greeting'}}
+        }
+        assert paths['/hello']['post'] == {
+            'description': 'post a greeting',
+            'responses': {'200': {'description': 'delivered greeting'}}
+        }
+        assert 'foo' not in paths['/hello']
