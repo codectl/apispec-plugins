@@ -37,7 +37,6 @@ class TestFlaskPlugin:
         }}
         spec.path(view=greeting, operations=operations)
         paths = utils.get_paths(spec)
-
         assert 'get' in paths['/hello']
         assert paths['/hello'] == operations
 
@@ -65,7 +64,6 @@ class TestFlaskPlugin:
         app.add_url_rule('/hello', view_func=method_view, methods=('GET', 'POST'))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-
         assert paths['/hello']['get'] == {
             'summary': 'A greeting endpoint.',
             'description': 'get a greeting',
@@ -89,7 +87,6 @@ class TestFlaskPlugin:
         paths = utils.get_paths(spec)
         get_op = paths['/hello']['get']
         post_op = paths['/hello']['post']
-
         assert get_op['description'] == 'get a greeting'
         assert post_op['description'] == 'post a greeting'
 
@@ -118,7 +115,6 @@ class TestFlaskPlugin:
         app.add_url_rule('/hello', view_func=method_view, methods=('GET', 'POST'))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-
         assert 'get' in paths['/hello']
         assert 'post' in paths['/hello']
         assert 'delete' not in paths['/hello']
@@ -146,7 +142,6 @@ class TestFlaskPlugin:
 
         spec.path(view=greeting)
         paths = utils.get_paths(spec)
-
         assert paths['/hello']['x-extension'] == 'value'
         assert paths['/hello']['get'] == {
             'description': 'get a greeting',
@@ -157,3 +152,21 @@ class TestFlaskPlugin:
             'responses': {'200': {'description': 'delivered greeting'}}
         }
         assert 'foo' not in paths['/hello']
+
+    def test_path_is_translated_to_swagger_template(self, app, spec):
+        @app.route('/hello/<user_id>')
+        def hello_user(user_id):
+            return f"greeting sent to user {user_id}"
+
+        spec.path(view=hello_user)
+        assert '/hello/{user_id}' in utils.get_paths(spec)
+
+    def test_explicit_app_kwarg(self, spec):
+        app = Flask(__name__)
+
+        @app.route('/hello/<user_id>')
+        def hello_user(user_id):
+            return f"greeting sent to user {user_id}"
+
+        spec.path(view=hello_user, app=app)
+        assert '/hello/{user_id}' in utils.get_paths(spec)
