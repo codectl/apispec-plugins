@@ -50,12 +50,12 @@ def load_specs_from_docstring(docstring):
     return specs
 
 
-def path_parser(path, base_path=None):
+def path_parser(path, **kwargs):
     """Make rule path OpenAPI specs compliant."""
     reg = '<([^<>]*:)?([^<>]*)>'
-    parsed = re.sub(reg, r'{\1}', path)
+    parsed = re.sub(reg, r'{\2}', path)
 
-    base_path = base_path or ''
+    base_path = kwargs.get('base_path', '')
     parsed = parsed[len(base_path):] if parsed.startswith(base_path) else parsed
 
     return parsed
