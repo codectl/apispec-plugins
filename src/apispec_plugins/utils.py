@@ -1,3 +1,4 @@
+import re
 from functools import wraps
 
 from apispec import yaml_utils
@@ -47,3 +48,14 @@ def load_specs_from_docstring(docstring):
         specs['summary'] = summary.strip()  # sanitize
 
     return specs
+
+
+def path_parser(path, base_path=None):
+    """Make rule path OpenAPI specs compliant."""
+    reg = '<([^<>]*:)?([^<>]*)>'
+    parsed = re.sub(reg, r'{\1}', path)
+
+    base_path = base_path or ''
+    parsed = parsed[len(base_path):] if parsed.startswith(base_path) else parsed
+
+    return parsed
