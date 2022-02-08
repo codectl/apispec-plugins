@@ -39,6 +39,10 @@ class FlaskPlugin(BasePlugin):
             **kwargs
     ):
         """Path helper hook to set path specs from a Flask view."""
+        path = kwargs.pop('path', None)
+        if path:
+            return path
+
         rule = self._rule_view(view, app=app)
 
         # populate properties for operations
