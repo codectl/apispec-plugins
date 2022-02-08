@@ -49,10 +49,4 @@ class FlaskPlugin(BasePlugin):
                     method_name = method.lower()
                     method = getattr(view.view_class, method_name)
                     operations[method_name] = spec_utils.load_method_specs(method)
-
-        # remove trailing base path
-        path = rule.rule
-        base_path = kwargs.get('basePath', '')
-        path = path[len(base_path):] if path.startswith(base_path) else path
-
-        return path
+        return spec_utils.path_parser(rule.rule, **kwargs)
