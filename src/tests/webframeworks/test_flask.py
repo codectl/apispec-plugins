@@ -1,6 +1,6 @@
 import pytest
 from apispec import APISpec
-from apispec_plugins.webframeworks.flask import FlaskPlugin
+from apispec_plugins import FlaskPlugin, spec_from
 from flask import Flask
 from flask.views import MethodView
 from flask_restful import Api, Resource
@@ -164,7 +164,7 @@ class TestFlaskPlugin:
         assert 'post' in paths['/hello']
         assert 'delete' not in paths['/hello']
 
-    def test_integration_with_docstring_introspection(self, app, spec):
+    def test_docstring_introspection(self, app, spec):
         @app.route('/hello')
         def greeting():
             """A greeting endpoint.
@@ -197,6 +197,21 @@ class TestFlaskPlugin:
             'responses': {'200': {'description': 'delivered greeting'}}
         }
         assert 'foo' not in paths['/hello']
+
+    def test_specs_from_decorator(self, app, spec):
+        class GreetingView(MethodView):
+
+
+            def get(self):
+                """A greeting endpoint.
+                ---
+                description: get a greeting
+                responses:
+                    200:
+                        description: received greeting
+                """
+                return 'hello'
+
 
     def test_path_is_translated_to_swagger_template(self, app, spec):
         @app.route('/hello/<user_id>')
