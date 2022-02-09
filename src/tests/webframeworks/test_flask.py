@@ -201,17 +201,25 @@ class TestFlaskPlugin:
     def test_specs_from_decorator(self, app, spec):
         class GreetingView(MethodView):
 
-
+            @spec_from({
+                'description': 'get a greeting',
+                'responses': {
+                    200: {'description': 'received greeting'}
+                }
+            })
             def get(self):
-                """A greeting endpoint.
-                ---
-                description: get a greeting
-                responses:
-                    200:
-                        description: received greeting
-                """
+                """A greeting endpoint."""
                 return 'hello'
 
+        method_view = GreetingView.as_view('hello')
+        app.add_url_rule('/hello', view_func=method_view)
+        spec.path(view=method_view)
+        paths = utils.get_paths(spec)
+        assert paths['/hello']['get'] == {
+            'summary': 'A greeting endpoint.',
+            'description': 'get a greeting',
+            'responses': {'200': {'description': 'received greeting'}},
+        }
 
     def test_path_is_translated_to_swagger_template(self, app, spec):
         @app.route('/hello/<user_id>')
