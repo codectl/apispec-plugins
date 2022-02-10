@@ -15,7 +15,7 @@ def app():
         yield app
 
 
-@pytest.fixture(scope='function', params=('2.0.0', '3.0.0'))
+@pytest.fixture(scope='function', params=('2.0', '3.0.0'))
 def spec(request):
     return APISpec(
         title='Test Suite',
