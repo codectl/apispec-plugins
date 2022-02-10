@@ -7,15 +7,25 @@ Currently supported plugins:
 
 * ```apispec_plugins.webframeworks.flask```
 
-## Migration from ```apispec<1.0.0```
-
-To migrate from older versions of apispec, install this package with:
+## Installation
+ 
+Install the package directly from ```PyPI``` (recommended):
 
 ```bash
 pip install apispec-plugins
 ```
 
-Change your imports, like so:
+Plugin dependencies like ```Flask``` are not installed with the package by default.
+To have ```Flask``` installed, do like so:
+
+```bash
+pip install apispec-plugins[flask]
+```
+
+### Migration from ```apispec<1.0.0```
+
+The location from where plugins, like ```FlaskPlugin``` imports, are imported is different.
+Therefore, the imports need to be performed this way:
 
 ```python
 # apispec<1.0.0
