@@ -232,9 +232,9 @@ class TestFlaskPlugin:
     def test_explicit_app_kwarg(self, spec):
         app = Flask(__name__)
 
-        @app.route('/hello/<user_id>')
-        def hello_user(user_id):
-            return f"greeting sent to user {user_id}"
+        @app.route('/bye')
+        def bye():
+            return 'bye'
 
-        spec.path(view=hello_user, app=app)
-        assert '/hello/{user_id}' in utils.get_paths(spec)
+        spec.path(view=bye, app=app)
+        assert '/bye' in utils.get_paths(spec)
