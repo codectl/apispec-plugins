@@ -8,15 +8,15 @@ Currently supported plugins:
 * ```apispec_plugins.webframeworks.flask```
 
 ## Installation
- 
+
 Install the package directly from ```PyPI``` (recommended):
 
 ```bash
 pip install apispec-plugins
 ```
 
-Plugin dependencies like ```Flask``` are not installed with the package by default.
-To have ```Flask``` installed, do like so:
+Plugin dependencies like ```Flask``` are not installed with the package by default. To have ```Flask``` installed, do
+like so:
 
 ```bash
 pip install apispec-plugins[flask]
@@ -24,8 +24,8 @@ pip install apispec-plugins[flask]
 
 ### Migration from ```apispec<1.0.0```
 
-The location from where plugins, like ```FlaskPlugin``` imports, are imported is different.
-Therefore, the imports need to be performed this way:
+The location from where plugins, like ```FlaskPlugin``` imports, are imported is different. Therefore, the imports need
+to be performed this way:
 
 ```python
 # apispec<1.0.0
@@ -79,6 +79,7 @@ Alternatively, a ```Flask``` ```MethodView``` can be used:
 ```python
 from flask.views import MethodView
 
+
 class PetAPI(MethodView):
 
     def get(self, petId):
@@ -101,6 +102,7 @@ class PetAPI(Resource):
         # get pet by ID
         pass
 
+
 api = Api(app)
 api.add_resource(PetAPI, '/pet/<petId>', endpoint='pet')
 ```
@@ -113,6 +115,7 @@ one can dynamically set specs:
 ```python
 from apispec_plugins import spec_from
 
+
 @spec_from({
     'parameters': {'in': 'path', 'name': 'petId'},
     'responses': {200: {'description': 'display pet data'}}
@@ -121,3 +124,29 @@ def pet(petID):
     """Find pet by ID."""
     pass
 ```
+
+## Why not ```apispec-webframeworks```?
+
+The conceiving of this project was based
+on [apispec-webframeworks](https://github.com/marshmallow-code/apispec-webframeworks). While that project is focused on
+integrating web frameworks with ```APISpec```, this repository goes a step further in providing the best integration
+possible with the ```APISpec``` standards. Some limitations on that project were also addressed, like:
+* a path cannot register no more than 1 single rule per endpoint;
+* support for additional libraries like ```Flask-RESTful```;
+* limited docstring spec processing;
+
+## Tests & linting
+
+To run tests:
+
+```bash
+# install dependencies (if necessary)
+$ pip install apispec-plugins[tests]
+
+# run tests with pytest
+$ pytest
+```
+
+## License
+
+MIT licensed. See [LICENSE](LICENSE).
