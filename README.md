@@ -1,17 +1,15 @@
 # apispec-plugins
 
-[apispec](https://github.com/marshmallow-code/apispec) plugins for
-integrating with different components (web frameworks, packages, etc).
+[apispec](https://github.com/marshmallow-code/apispec) plugins for integrating with different components (web
+frameworks, packages, etc).
 
 Currently supported plugins:
 
 * ```apispec_plugins.webframeworks.flask```
 
-
 ## Migration from ```apispec<1.0.0```
 
-To migrate from older versions of apispec, install this package
-with:
+To migrate from older versions of apispec, install this package with:
 
 ```bash
 pip install apispec-plugins
@@ -31,7 +29,7 @@ from apispec_plugins.webframeworks.flask import FlaskPlugin
 
 ```python
 from apispec import APISpec
-from apispec_webframeworks.flask import FlaskPlugin
+from apispec_plugins.webframeworks.flask import FlaskPlugin
 from flask import Flask
 
 spec = APISpec(
@@ -42,8 +40,8 @@ spec = APISpec(
     plugins=(FlaskPlugin(),)
 )
 
-
 app = Flask(__name__)
+
 
 @app.route('/pet/<petId>')
 def pet(petId):
@@ -74,8 +72,9 @@ from flask.views import MethodView
 class PetAPI(MethodView):
 
     def get(self, petId):
-        pet = Pet.query.get(petId)
-        ...
+        # get pet by ID
+        pass
+
 
 app.add_url_rule('/pet/<petId>', view_func=PetAPI.as_view('pet_view'))
 ```
@@ -85,13 +84,30 @@ There is also easy integration with other packages like ```Flask-RESTful```:
 ```python
 from flask_restful import Api, Resource
 
-api = Api(app)
 
 class PetAPI(Resource):
 
     def get(self, petId):
-        pet = Pet.query.get(petId)
-        ...
+        # get pet by ID
+        pass
 
+api = Api(app)
 api.add_resource(PetAPI, '/pet/<petId>', endpoint='pet')
+```
+
+### Dynamic specs
+
+As seen so far, specs are specified in the docstring of the view or class. However, with the ```spec_from``` decorator,
+one can dynamically set specs:
+
+```python
+from apispec_plugins import spec_from
+
+@spec_from({
+    'parameters': {'in': 'path', 'name': 'petId'},
+    'responses': {200: {'description': 'display pet data'}}
+})
+def pet(petID):
+    """Find pet by ID."""
+    pass
 ```
