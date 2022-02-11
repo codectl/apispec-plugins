@@ -55,3 +55,6 @@ venv.bak/
 
 # logs
 *.log*
+
+# poetry
+poetry.lock
