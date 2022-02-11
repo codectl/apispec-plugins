@@ -54,9 +54,6 @@ flask = ["Flask"]
 [tool.poetry.urls]
 issues = "https://github.com/rena2damas/apispec-plugins/issues"
 
-[flake8]
-max-line-length = 88
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
