@@ -40,11 +40,12 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 apispec = "^2.0.0"
+Flask = { extras = ["flask"], version = "^2.0.0", optional = true }
 PyYAML = "^6.0"
 
-Flask = { extras = ["flask"], version = "^2.0.0", optional = true }
-
 [tool.poetry.dev-dependencies]
+Flask = { extras = ["flask"], version = "^2.0.0" }
+Flask-RESTful = "^0"
 pytest = "^7.0.0"
 
 [tool.poetry.extras]
