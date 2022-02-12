@@ -120,10 +120,10 @@ class TestFlaskPlugin:
 
         spec.path(
             view=greeting,
-            operations=dict(
-                get={"description": "get a greeting", "responses": {"200": {}}},
-                post={"description": "post a greeting", "responses": {"200": {}}},
-            ),
+            operations={
+                "get": {"description": "get a greeting", "responses": {"200": {}}},
+                "post": {"description": "post a greeting", "responses": {"200": {}}},
+            },
         )
         paths = utils.get_paths(spec)
         get_op = paths["/hello"]["get"]
