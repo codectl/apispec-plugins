@@ -1,9 +1,6 @@
 # apispec-plugins
 
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=yellow)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
----
 
 [apispec](https://github.com/marshmallow-code/apispec) plugins for integrating with different components (web
 frameworks, packages, etc).
