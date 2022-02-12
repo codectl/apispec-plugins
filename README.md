@@ -43,17 +43,17 @@ from apispec_plugins.webframeworks.flask import FlaskPlugin
 from flask import Flask
 
 spec = APISpec(
-    title='Pet Store',
-    version='1.0.0',
-    openapi_version='2.0',
-    info=dict(description='A minimal pet store API'),
-    plugins=(FlaskPlugin(),)
+    title="Pet Store",
+    version="1.0.0",
+    openapi_version="2.0",
+    info=dict(description="A minimal pet store API"),
+    plugins=(FlaskPlugin(),),
 )
 
 app = Flask(__name__)
 
 
-@app.route('/pet/<petId>')
+@app.route("/pet/<petId>")
 def pet(petId):
     """Find pet by ID.
     ---
@@ -81,13 +81,12 @@ from flask.views import MethodView
 
 
 class PetAPI(MethodView):
-
     def get(self, petId):
         # get pet by ID
         pass
 
 
-app.add_url_rule('/pet/<petId>', view_func=PetAPI.as_view('pet_view'))
+app.add_url_rule("/pet/<petId>", view_func=PetAPI.as_view("pet_view"))
 ```
 
 There is also easy integration with other packages like ```Flask-RESTful```:
@@ -97,14 +96,13 @@ from flask_restful import Api, Resource
 
 
 class PetAPI(Resource):
-
     def get(self, petId):
         # get pet by ID
         pass
 
 
 api = Api(app)
-api.add_resource(PetAPI, '/pet/<petId>', endpoint='pet')
+api.add_resource(PetAPI, "/pet/<petId>", endpoint="pet")
 ```
 
 ### Dynamic specs
@@ -116,10 +114,12 @@ one can dynamically set specs:
 from apispec_plugins import spec_from
 
 
-@spec_from({
-    'parameters': {'in': 'path', 'name': 'petId'},
-    'responses': {200: {'description': 'display pet data'}}
-})
+@spec_from(
+    {
+        "parameters": {"in": "path", "name": "petId"},
+        "responses": {200: {"description": "display pet data"}},
+    }
+)
 def pet(petID):
     """Find pet by ID."""
     pass
