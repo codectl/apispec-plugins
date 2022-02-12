@@ -1,5 +1,10 @@
 # apispec-plugins
 
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=yellow)](https://github.com/pre-commit/pre-commit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+---
+
 [apispec](https://github.com/marshmallow-code/apispec) plugins for integrating with different components (web
 frameworks, packages, etc).
 
@@ -131,6 +136,7 @@ The conceiving of this project was based
 on [apispec-webframeworks](https://github.com/marshmallow-code/apispec-webframeworks). While that project is focused on
 integrating web frameworks with ```APISpec```, this repository goes a step further in providing the best integration
 possible with the ```APISpec``` standards. Some limitations on that project were also addressed, like:
+
 * a path cannot register no more than 1 single rule per endpoint;
 * support for additional libraries like ```Flask-RESTful```;
 * limited docstring spec processing;
