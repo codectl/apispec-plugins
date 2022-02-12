@@ -1,2 +1,2 @@
 def get_paths(spec):
-    return spec.to_dict()['paths']
+    return spec.to_dict()["paths"]

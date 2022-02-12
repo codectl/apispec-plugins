@@ -23,7 +23,9 @@ class FlaskPlugin(BasePlugin):
             app = current_app
 
         view_funcs = app.view_functions
-        endpoint = next(endpoint for endpoint, view_func in view_funcs.items() if view_func == view)
+        endpoint = next(
+            endpoint for endpoint, view_func in view_funcs.items() if view_func == view
+        )
         if not endpoint:
             raise APISpecError(f"Could not find endpoint for view {view}")
 
@@ -31,15 +33,9 @@ class FlaskPlugin(BasePlugin):
         rule = next(app.url_map.iter_rules(endpoint=endpoint))
         return rule
 
-    def path_helper(
-            self,
-            operations=None,
-            view=None,
-            app=None,
-            **kwargs
-    ):
+    def path_helper(self, operations=None, view=None, app=None, **kwargs):
         """Path helper hook to set path specs from a Flask view."""
-        path = kwargs.pop('path', None)
+        path = kwargs.pop("path", None)
         if path:
             return path
 
@@ -47,7 +43,7 @@ class FlaskPlugin(BasePlugin):
 
         # populate properties for operations
         operations.update(yaml_utils.load_operations_from_docstring(view.__doc__))
-        if hasattr(view, 'view_class') and issubclass(view.view_class, MethodView):
+        if hasattr(view, "view_class") and issubclass(view.view_class, MethodView):
             for method in view.methods:
                 if method in rule.methods:
                     method_name = method.lower()
