@@ -74,7 +74,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: poetry install --no-update
+        run: poetry install
 
       - name: Run pytest
         shell: bash
