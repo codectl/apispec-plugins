@@ -14,17 +14,17 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set up Python ${{ python-version }}
+    - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ python-version }}
+        python-version: ${{ inputs.python-version }}
 
     - name: Set up cache
       uses: actions/cache@v2
       id: cache
       with:
         path: .venv
-        key: venv-${{ os }}-${{ python-version }}-${{ hashFiles("**/poetry.lock") }}
+        key: venv-${{ inputs.os }}-${{ inputs.python-version }}-${{ hashFiles("**/poetry.lock") }}
 
     - name: Update pip to latest version
       shell: bash
@@ -37,12 +37,12 @@ runs:
         python poetry.py -y
 
     - name: Update PATH
-      if: ${{ os != "Windows" }}
+      if: ${{ inputs.os != "Windows" }}
       shell: bash
       run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Update Path for Windows
-      if: ${{ os == "Windows" }}
+      if: ${{ inputs.os == "Windows" }}
       shell: bash
       run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
 
