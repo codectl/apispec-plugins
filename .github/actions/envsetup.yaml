@@ -1,17 +1,16 @@
 ---
-name: "Setup env"
-description: "Create & configure a Python environment"
+name: Setup env
+description: Create & configure a Python environment
 inputs:
   python-version:
-    description: "Version range or exact version of a Python version to use, using SemVer's version range syntax."
+    description: Version range or exact version of a Python version, using SemVer's version range syntax
     default: "3.x"
   os:
-    description: options to pass to pre-commit run
-    required: false
-    default: "--all-files"
+    description: The operating system for the environment
+    default: Linux
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - uses: actions/checkout@v2
 
