@@ -140,18 +140,17 @@ possible with the ```APISpec``` standards. Some limitations on that project were
 
 ## Tests & linting
 
-Run linter with ```pre-commit```:
-
-```bash
-# ensure pre-commit is installed
-$ pre-commit run
-```
-
 Run tests with ```tox```:
 
 ```bash
 # ensure tox is installed
 $ tox
+```
+
+Run linter only:
+
+```bash
+$ tox -e lint
 ```
 
 ## License
