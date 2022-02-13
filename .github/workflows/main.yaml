@@ -55,7 +55,6 @@ jobs:
         run: |
           curl -sL -o poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py
           python poetry.py -y
-          poetry config virtualenvs.in-project true
 
       - name: Update PATH
         if: ${{ matrix.os != 'Windows' }}
@@ -64,6 +63,9 @@ jobs:
       - name: Update Path for Windows
         if: ${{ matrix.os == 'Windows' }}
         run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
+
+      - name: Configure poetry
+        run: poetry config virtualenvs.in-project true
 
       - name: Install dependencies
         run: poetry install --no-interaction
