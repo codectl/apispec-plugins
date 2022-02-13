@@ -13,7 +13,7 @@ jobs:
   linters:
     runs-on: ubuntu-latest
     steps:
-      - uses: .github/actions/envsetup
+      - uses: ./.github/actions/envsetup
         with:
           python-version: "3.8"
           os: ${{ runner.os }}
@@ -52,7 +52,7 @@ jobs:
         run: echo '${{ toJSON(strategy) }}'
       - name: Dump matrix context
         run: echo '${{ toJSON(matrix) }}'
-      - uses: .github/actions/envsetup
+      - uses: ./.github/actions/envsetup
         with:
           python-version: ${{ matrix.python-version }}
           os: ${{ matrix.os }}
