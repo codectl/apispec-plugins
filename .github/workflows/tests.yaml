@@ -78,7 +78,7 @@ jobs:
 
       - name: Install tox
         shell: bash
-        run: python -m pip --upgrade tox
+        run: python -m pip install --upgrade pip tox
 
       - name: Run pytest
         shell: bash
