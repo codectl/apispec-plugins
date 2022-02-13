@@ -13,6 +13,19 @@ jobs:
   linters:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - name: Dump GitHub context
+        run: echo '${{ toJSON(github) }}'
+      - name: Dump job context
+        run: echo '${{ toJSON(job) }}'
+      - name: Dump steps context
+        run: echo '${{ toJSON(steps) }}'
+      - name: Dump runner context
+        run: echo '${{ toJSON(runner) }}'
+      - name: Dump strategy context
+        run: echo '${{ toJSON(strategy) }}'
+      - name: Dump matrix context
+        run: echo '${{ toJSON(matrix) }}'
       - uses: ./.github/actions/envsetup
         with:
           python-version: "3.8"
@@ -36,18 +49,7 @@ jobs:
             experimental: false
       fail-fast: false
     steps:
-      - name: Dump GitHub context
-        run: echo '${{ toJSON(github) }}'
-      - name: Dump job context
-        run: echo '${{ toJSON(job) }}'
-      - name: Dump steps context
-        run: echo '${{ toJSON(steps) }}'
-      - name: Dump runner context
-        run: echo '${{ toJSON(runner) }}'
-      - name: Dump strategy context
-        run: echo '${{ toJSON(strategy) }}'
-      - name: Dump matrix context
-        run: echo '${{ toJSON(matrix) }}'
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/envsetup
         with:
           python-version: ${{ matrix.python-version }}
