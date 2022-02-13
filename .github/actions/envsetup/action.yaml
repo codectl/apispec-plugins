@@ -14,6 +14,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - shell: bash
+      run: Set environment for python ${{ inputs.python-version }} in ${{ inputs.os }}
+
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v2
       with:
