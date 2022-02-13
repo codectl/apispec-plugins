@@ -4,9 +4,11 @@ description: Create & configure a Python environment
 inputs:
   python-version:
     description: Version range or exact version of a Python version, using SemVer's version range syntax
+    required: false
     default: "3.x"
   os:
     description: The operating system for the environment
+    required: false
     default: Linux
 
 runs:
