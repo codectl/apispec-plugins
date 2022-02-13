@@ -48,25 +48,31 @@ jobs:
           key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install poetry
+        shell: bash
         run: |
           curl -sL -o poetry.py https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py
           python poetry.py -y
 
       - name: Update PATH
         if: ${{ matrix.os != 'Windows' }}
+        shell: bash
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Update Path for Windows
         if: ${{ matrix.os == 'Windows' }}
+        shell: bash
         run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
 
       - name: Configure poetry
+        shell: bash
         run: poetry config virtualenvs.in-project true
 
       - name: Install dependencies
+        shell: bash
         run: poetry install --no-interaction
 
       - name: Run test suite from tox
+        shell: bash
         run: |
           python -m pip install --upgrade pip tox
           tox -e py -- -p no:sugar -p no:warnings -q
