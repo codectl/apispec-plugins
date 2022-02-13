@@ -76,6 +76,10 @@ jobs:
         shell: bash
         run: poetry install
 
+      - name: Install tox
+        shell: bash
+        run: python -m pip --upgrade tox
+
       - name: Run pytest
         shell: bash
         run: tox -e py -- -p no:sugar -p no:warnings -q
