@@ -140,14 +140,18 @@ possible with the ```APISpec``` standards. Some limitations on that project were
 
 ## Tests & linting
 
-To run tests:
+Run linter with ```pre-commit```:
 
 ```bash
-# install dependencies (if necessary)
-$ pip install apispec-plugins[tests]
+# ensure pre-commit is installed
+$ pre-commit run
+```
 
-# run tests with pytest
-$ pytest
+Run tests with ```tox```:
+
+```bash
+# ensure tox is installed
+$ tox
 ```
 
 ## License
