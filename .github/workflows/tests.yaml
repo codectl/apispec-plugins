@@ -10,7 +10,7 @@ jobs:
   tests:
     if: github.event.workflow_run.conclusion == 'success'
     name: ${{ matrix.os }} / ${{ matrix.python-version }}
-    runs-on: "${{ matrix.os }}-latest"
+    runs-on: ${{ matrix.os }}-latest
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
@@ -40,6 +40,18 @@ jobs:
         shell: bash
         run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
 
+      - name: Set up cache
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Ensure cache is healthy
+        if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: timeout 10s poetry run pip --version || rm -rf .venv
+
       - name: Bootstrap poetry
         shell: bash
         run: |
@@ -60,22 +72,10 @@ jobs:
         shell: bash
         run: poetry config virtualenvs.in-project true
 
-      - name: Set up cache
-        uses: actions/cache@v2
-        id: cache
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Ensure cache is healthy
-        if: steps.cache.outputs.cache-hit == 'true'
-        shell: bash
-        run: timeout 10s poetry run pip --version || rm -rf .venv
-
       - name: Install dependencies
         shell: bash
         run: poetry install
 
       - name: Run pytest
         shell: bash
-        run: poetry run python -m pytest -p no:sugar -q tests/
+        run: tox -e py -- -p no:sugar -p no:warnings -q
