@@ -1,5 +1,6 @@
 # apispec-plugins
 
+[![main](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml/badge.svg)](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 [apispec](https://github.com/marshmallow-code/apispec) plugins for integrating with different components (web
