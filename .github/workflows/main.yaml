@@ -26,10 +26,12 @@ jobs:
         run: echo '${{ toJSON(strategy) }}'
       - name: Dump matrix context
         run: echo '${{ toJSON(matrix) }}'
+
       - uses: ./.github/actions/envsetup
         with:
           python-version: "3.8"
           os: ${{ runner.os }}
+
       - name: Run test suite from tox
         shell: bash
         run: tox -e lint
@@ -54,10 +56,12 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
+
       - uses: ./.github/actions/envsetup
         with:
           python-version: ${{ matrix.python-version }}
           os: ${{ matrix.os }}
+
       - name: Run test suite from tox
         shell: bash
         run: tox -e py -- -p no:sugar -p no:warnings -q
