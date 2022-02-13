@@ -20,7 +20,7 @@ jobs:
         bootstrap-args: [ "" ]
         include:
           - os: Ubuntu
-            python-version: pypy3
+            python-version: "pypy-3.7"
             experimental: false
       fail-fast: false
     steps:
