@@ -24,7 +24,7 @@ runs:
       id: cache
       with:
         path: .venv
-        key: venv-${{ inputs.os }}-${{ inputs.python-version }}-${{ hashFiles("**/poetry.lock") }}
+        key: venv-${{ inputs.os }}-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
     - name: Update pip to latest version
       shell: bash
@@ -37,12 +37,12 @@ runs:
         python poetry.py -y
 
     - name: Update PATH
-      if: ${{ inputs.os != Windows }}
+      if: ${{ inputs.os != 'Windows' }}
       shell: bash
       run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Update Path for Windows
-      if: ${{ inputs.os == Windows }}
+      if: ${{ inputs.os == 'Windows' }}
       shell: bash
       run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
 
