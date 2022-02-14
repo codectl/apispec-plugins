@@ -22,7 +22,7 @@ jobs:
           python-version: "3.8"
           os: ${{ matrix.os }}
       - shell: bash
-        run:
+        run: |
           poetry show
           poetry env info
       - name: Run linter with tox
