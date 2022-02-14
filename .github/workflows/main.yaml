@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/envsetup
+      - uses: ./.github/actions/pyenvsetup
         with:
           python-version: "3.8"
           os: ${{ runner.os }}
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/envsetup
+      - uses: ./.github/actions/pyenvsetup
         with:
           python-version: ${{ matrix.python-version }}
           os: ${{ matrix.os }}
