@@ -35,7 +35,7 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
         experimental: [ false ]
         include:
-          - os: Ubuntu
+          - os: ubuntu-latest
             python-version: "pypy-3.7"
             experimental: false
       fail-fast: false
