@@ -21,6 +21,8 @@ jobs:
         with:
           python-version: "3.8"
           os: ${{ matrix.os }}
+      - shell: bash
+        run: poetry show
       - name: Run linter with tox
         shell: bash
         run: tox -e lint
