@@ -63,6 +63,11 @@ jobs:
       - name: Run coverage with tox
         shell: bash
         run: tox -e coverage -- -p no:sugar -p no:warnings -q
+      - name: Submit coverage to codecov
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
+          files: .coverage
 
   sucess:
     runs-on: ubuntu-latest
