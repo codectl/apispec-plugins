@@ -1,6 +1,7 @@
 # apispec-plugins
 
-[![main](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml/badge.svg)](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml)
+[![ci](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml/badge.svg)](https://github.com/rena2damas/apispec-plugins/actions/workflows/main.yaml)
+[![codecov](https://codecov.io/gh/rena2damas/apispec-plugins/branch/master/graph/badge.svg)](https://app.codecov.io/gh/rena2damas/apispec-plugins/branch/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
