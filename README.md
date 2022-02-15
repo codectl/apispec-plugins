@@ -156,6 +156,12 @@ Run linter only:
 $ tox -e lint
 ```
 
+Optionally, run coverage as well with:
+
+```bash
+$ tox -e coverage
+```
+
 ## License
 
 MIT licensed. See [LICENSE](LICENSE).
