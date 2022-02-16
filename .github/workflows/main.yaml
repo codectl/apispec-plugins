@@ -69,7 +69,8 @@ jobs:
   sucess:
     runs-on: ubuntu-latest
     needs:
-    - tests
-    - linters
+      - linters
+      - tests
+      - coverage
     steps:
-    - run: echo "Done"
+      - run: echo "Done"
