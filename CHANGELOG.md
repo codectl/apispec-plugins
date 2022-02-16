@@ -1,7 +1,7 @@
 # CHANGELOG
 
 
-## 0.2.0 (2022-02-16)
+## 0.1.1 (2022-02-16)
 
 * Use apispec version 5.x.
 
