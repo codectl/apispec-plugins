@@ -85,7 +85,7 @@ jobs:
         with:
           python-version: "3.8"
       - name: Build & publish with poetry
-        run: poetry publish --build -u ${{ PYPI_USERNAME }} -p ${{ PYPI_PASSWORD }}
+        run: poetry publish --build -u $PYPI_USERNAME -p $PYPI_PASSWORD
         env:
           PYPI_USERNAME: __token__
           PYPI_PASSWORD: ${{ secrets.PYPI_TOKEN }}
