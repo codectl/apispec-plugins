@@ -75,7 +75,7 @@ jobs:
     steps:
       - run: echo "Done"
 
-  pypi-publish:
+  pypi:
     needs: [ success ]
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
