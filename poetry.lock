@@ -411,7 +411,7 @@ flask = ["Flask"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "63a8a0b13db11201c835bd58f963494b72f91ed89b35ea26f1c6f7a20b3539d9"
+content-hash = "4827d33e5a69305f8bd6fac360ffb92b73c944964cba56dd32a9f599f588479c"
 
 [metadata.files]
 aniso8601 = [
