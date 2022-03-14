@@ -42,11 +42,11 @@ Flask = { extras = ["flask"], version = "^2.0.3", optional = true }
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
+apispec = { extras = ["flask"], version = "^5.1.1" }
 coverage = "^6.3.2"
-Flask = { extras = ["flask"], version = "^2.0.3" }
 Flask-RESTful = "0.3.9"
 pre-commit = "^2.17.0"
-pytest = "^7.0.1"
+pytest = "^7.1.0"
 
 [tool.poetry.extras]
 flask = ["Flask"]
