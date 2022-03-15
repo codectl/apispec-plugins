@@ -28,19 +28,6 @@ like so:
 pip install apispec-plugins[flask]
 ```
 
-### Migration from ```apispec<1.0.0```
-
-The location from where plugins, like ```FlaskPlugin``` imports, are imported is different. Therefore, the imports need
-to be performed this way:
-
-```python
-# apispec<1.0.0
-from apispec.ext.flask import FlaskPlugin
-
-# apispec>=1.0.0
-from apispec_plugins.webframeworks.flask import FlaskPlugin
-```
-
 ## Example Usage
 
 ```python
