@@ -1,5 +1,5 @@
 ---
-name: main
+name: CI
 
 on:
   push:
