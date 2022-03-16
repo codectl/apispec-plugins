@@ -1,6 +1,10 @@
 # CHANGELOG
 
 
+## 0.1.2 (2022-03-16)
+
+* Convert README to rst format.
+
 ## 0.1.1 (2022-02-16)
 
 * Use apispec version 5.x.
