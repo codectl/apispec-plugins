@@ -18,7 +18,7 @@ apispec-plugins
     :target: https://opensource.org/licenses/MIT
     :alt: license: MIT
 
-`apispec_plugins <https://github.com/marshmallow-code/apispec>`_ plugins for easy
+`APISpec <https://github.com/marshmallow-code/apispec>`_ plugins for easy
 integration with different components (web frameworks, packages, etc).
 
 Features
