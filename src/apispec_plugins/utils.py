@@ -1,5 +1,6 @@
+import functools
 import re
-from functools import wraps
+import urllib.parse
 
 from apispec import yaml_utils
 
@@ -14,7 +15,7 @@ def spec_from(specs):
 
         func.specs = docstring_specs
 
-        @wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
 
@@ -61,5 +62,6 @@ def path_parser(path, **kwargs):
 
     base_path = kwargs.get("base_path", "")
     parsed = parsed[len(base_path) :] if parsed.startswith(base_path) else parsed
+    parsed = urllib.parse.urljoin("/", parsed)
 
     return parsed
