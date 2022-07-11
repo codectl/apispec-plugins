@@ -45,7 +45,7 @@ python = "^3.7"
 coverage = "^6.4.1"
 Flask = "^2.1.2"
 Flask-RESTful = "^0.3.9"
-pre-commit = "^2.19.0"
+pre-commit = "^2.20.0"
 pytest = "^7.1.2"
 
 [tool.poetry.extras]
