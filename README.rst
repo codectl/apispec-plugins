@@ -147,7 +147,7 @@ possible with the ``APISpec`` standards. Some limitations on that project were a
 * support for additional libraries like ``Flask-RESTful``;
 * limited docstring spec processing;
 
-Tests & linting
+Tests & linting 🚥
 ===============
 Run tests with ``tox``:
 
