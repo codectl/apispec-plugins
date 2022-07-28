@@ -23,7 +23,6 @@ integration with different components (web frameworks, packages, etc).
 
 Features
 ========
-
 * Supports the OpenAPI Specification (versions 2 and 3)
 * Currently supported frameworks/plugins include:
 
@@ -31,7 +30,6 @@ Features
 
 Installation
 ============
-
 Install the package directly from ``PyPI`` (recommended):
 
 .. code-block:: bash
@@ -47,7 +45,6 @@ have ``Flask`` installed, do like so:
 
 Example Usage
 =============
-
 .. code-block:: python
 
    from apispec import APISpec
@@ -119,7 +116,6 @@ There is also easy integration with other packages like
 
 Dynamic specs
 -------------
-
 As seen so far, specs are specified in the docstring of the view or
 class. However, with the ``spec_from`` decorator, one can dynamically
 set specs:
@@ -141,7 +137,6 @@ set specs:
 
 Why not ``apispec-webframeworks``?
 ==================================
-
 The conceiving of this project was based
 on `apispec-webframeworks <https://github
 .com/marshmallow-code/apispec-webframeworks>`_. While that project is focused on
@@ -154,7 +149,6 @@ possible with the ``APISpec`` standards. Some limitations on that project were a
 
 Tests & linting
 ===============
-
 Run tests with ``tox``:
 
 .. code-block:: bash
@@ -176,5 +170,4 @@ Optionally, run coverage as well with:
 
 License
 =======
-
 MIT licensed. See `LICENSE <LICENSE>`_.
