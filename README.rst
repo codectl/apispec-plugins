@@ -18,7 +18,7 @@ apispec-plugins
     :target: https://opensource.org/licenses/MIT
     :alt: license: MIT
 
-`APISpec <https://github.com/marshmallow-code/apispec>`_ plugins for easy
+`APISpec <https://github.com/marshmallow-code/apispec>`__ plugins for easy
 integration with different components (web frameworks, packages, etc).
 
 Features
@@ -137,11 +137,11 @@ set specs:
 
 Why not ``apispec-webframeworks``?
 ==================================
-The conceiving of this project was based
-on `apispec-webframeworks <https://github
-.com/marshmallow-code/apispec-webframeworks>`_. While that project is focused on
-integrating web frameworks with ``APISpec``, this repository goes a step further in providing the best integration
-possible with the ``APISpec`` standards. Some limitations on that project were also addressed, like:
+The conceiving of this project was based on `apispec-webframeworks <https://github
+.com/marshmallow-code/apispec-webframeworks>`__. While that project is focused on
+integrating web frameworks with ``APISpec``, this repository goes a step further in
+providing the best integration possible with the ``APISpec`` standards. Some
+limitations on that project were also addressed, like:
 
 * a path cannot register no more than 1 single rule per endpoint;
 * support for additional libraries like ``Flask-RESTful``;
@@ -170,4 +170,4 @@ Optionally, run coverage as well with:
 
 License
 =======
-MIT licensed. See `LICENSE <LICENSE>`_.
+MIT licensed. See `LICENSE <LICENSE>`__.
