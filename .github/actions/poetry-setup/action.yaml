@@ -19,7 +19,7 @@ runs:
       run: echo Set environment for python ${{ inputs.python-version }} in ${{ inputs.os }}
 
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
 
