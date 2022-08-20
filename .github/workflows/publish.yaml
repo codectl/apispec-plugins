@@ -1,0 +1,21 @@
+---
+name: publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install & configure poetry
+        uses: ./.github/actions/poetry-setup
+        with:
+          python-version: "3.9"
+      - name: build & publish with poetry
+        run: poetry publish --build -u $PYPI_USERNAME -p $PYPI_PASSWORD
+        env:
+          PYPI_USERNAME: __token__
+          PYPI_PASSWORD: ${{ secrets.PYPI_TOKEN }}
