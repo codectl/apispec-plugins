@@ -4,7 +4,7 @@ from flask.views import MethodView
 from apispec import BasePlugin, yaml_utils
 from apispec.exceptions import APISpecError
 
-from .. import utils as spec_utils
+from apispec_plugins import utils as spec_utils
 
 
 class FlaskPlugin(BasePlugin):
