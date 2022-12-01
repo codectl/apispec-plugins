@@ -1,17 +1,20 @@
-from flask import current_app
-from flask.views import MethodView
+import http
+import http.client
 
 from apispec import BasePlugin, yaml_utils
 from apispec.exceptions import APISpecError
+from flask import current_app
+from flask.views import MethodView
 
-from apispec_plugins import utils as spec_utils
+from apispec_plugins import types, utils as spec_utils
 
 
 class FlaskPlugin(BasePlugin):
     """APISpec plugin for Flask"""
 
-    def __init__(self):
+    def __init__(self, default_media="application/json"):
         self.spec = None
+        self.default_media = default_media
 
     def init_spec(self, spec):
         super().init_spec(spec)
@@ -29,7 +32,7 @@ class FlaskPlugin(BasePlugin):
         if not endpoint:
             raise APISpecError(f"Could not find endpoint for view {view}")
 
-        # WARNING: Assume 1 rule per view function for now
+        # TODO: assume 1 rule per view function for now
         rule = next(app.url_map.iter_rules(endpoint=endpoint))
         return rule
 
@@ -50,3 +53,38 @@ class FlaskPlugin(BasePlugin):
                     method = getattr(view.view_class, method_name)
                     operations[method_name] = spec_utils.load_method_specs(method)
         return spec_utils.path_parser(rule.rule, **kwargs)
+
+    def operation_helper(self, path=None, operations=None, **kwargs):
+        """Operation helper hook to process operation properties."""
+
+        for op in operations.values():
+            if type(op) is dict:
+                for code in op.get("responses", {}):
+
+                    # handle error codes only
+                    if not isinstance(code, int) or code < 400:
+                        continue
+                    # response content must be empty
+                    elif op["responses"][code]:
+                        continue
+
+                    description = http.client.responses[code]
+                    schema_name = description.replace(" ", "")
+                    op["responses"][code] = schema_name
+
+                    http_schema_name = types.HTTPResponse.__name__
+                    if http_schema_name not in self.spec.components.schemas:
+                        self.spec.components.schema(
+                            component_id=http_schema_name,
+                            component=spec_utils.dataclass_schema_resolver(
+                                types.HTTPResponse
+                            ),
+                        )
+
+                    if schema_name not in self.spec.components.responses:
+                        component = {"schema": http_schema_name}
+                        if self.spec.openapi_version.major >= 3:
+                            component = {"content": {self.default_media: component}}
+                        self.spec.components.response(
+                            component_id=schema_name, component=component
+                        )
