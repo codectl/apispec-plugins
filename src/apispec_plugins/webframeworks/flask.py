@@ -65,7 +65,7 @@ class FlaskPlugin(BasePlugin):
                     if (
                         not op["responses"][code]
                         and isinstance(code, int)
-                        and code > 400
+                        and code >= 400
                     ):
 
                         description = http.client.responses[code]
