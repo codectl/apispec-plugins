@@ -1,5 +1,6 @@
 import functools
 import re
+import typing
 import urllib.parse
 from collections.abc import Sequence
 from dataclasses import asdict, fields
@@ -105,9 +106,9 @@ def dataclass_schema_resolver(schema):
 def base_template(
     openapi_version: str,
     info: dict = None,
-    servers: list[types.Server] = (),
-    auths: list[types.AuthSchemes.BasicAuth] = (),
-    tags: list[types.Tag] = (),
+    servers: typing.List[types.Server] = (),
+    auths: typing.List[types.AuthSchemes.BasicAuth] = (),
+    tags: typing.List[types.Tag] = (),
 ):
     """Provide a base OpenAPI template."""
 
