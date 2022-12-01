@@ -1,8 +1,20 @@
 import functools
 import re
 import urllib.parse
+from collections.abc import Sequence
+from dataclasses import asdict, fields
 
 from apispec import yaml_utils
+
+from apispec_plugins import types
+
+__all__ = (
+    "spec_from",
+    "load_method_specs",
+    "path_parser",
+    "dataclass_schema_resolver",
+    "base_template",
+)
 
 
 def spec_from(specs):
@@ -65,3 +77,48 @@ def path_parser(path, **kwargs):
     parsed = urllib.parse.urljoin("/", parsed)
 
     return parsed
+
+
+def dataclass_schema_resolver(schema):
+    """A schema resolver for dataclasses."""
+
+    def _resolve_field_type(f):
+        if f.type == str:
+            return "string"
+        if f.type == int:
+            return "integer"
+        if f.type == float:
+            return "number"
+        if f.type == bool:
+            return "boolean"
+        elif isinstance(field.type, Sequence):
+            return "array"
+        return "object"
+
+    definition = {"type": "object", "properties": {}, "required": []}
+    for field in fields(schema):
+        name = field.name
+        definition["properties"][name] = {"type": _resolve_field_type(field)}
+    return definition
+
+
+def base_template(
+    openapi_version: str,
+    info: dict = None,
+    servers: list[types.Server] = (),
+    auths: list[types.AuthSchemes.BasicAuth] = (),
+    tags: list[types.Tag] = (),
+):
+    """Provide a base OpenAPI template."""
+
+    return {
+        "openapi": openapi_version,
+        "info": info or {},
+        "servers": servers,
+        "tags": tags,
+        "components": {
+            "securitySchemes": {
+                **{type(auth).__name__: asdict(auth) for auth in auths}
+            },
+        },
+    }
