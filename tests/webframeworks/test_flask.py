@@ -257,17 +257,6 @@ class TestFlaskPlugin:
                 """
                 return "hello"
 
-            def post(self):
-                """Another greeting endpoint.
-                ---
-                description: post a greeting
-                responses:
-                    400:
-                    401:
-                        description: forbidden greeting
-                """
-                return "hello"
-
         method_view = ResponsesView.as_view("responses")
         app.add_url_rule("/hello", view_func=method_view)
         spec.path(view=method_view)
