@@ -62,29 +62,29 @@ class FlaskPlugin(BasePlugin):
                 for code in op.get("responses", {}):
 
                     # handle error codes only
-                    if not isinstance(code, int) or code < 400:
-                        continue
-                    # response content must be empty
-                    elif op["responses"][code]:
-                        continue
+                    if (
+                        not op["responses"][code]
+                        and isinstance(code, int)
+                        and code > 400
+                    ):
 
-                    description = http.client.responses[code]
-                    schema_name = description.replace(" ", "")
-                    op["responses"][code] = schema_name
+                        description = http.client.responses[code]
+                        schema_name = description.replace(" ", "")
+                        op["responses"][code] = schema_name
 
-                    http_schema_name = types.HTTPResponse.__name__
-                    if http_schema_name not in self.spec.components.schemas:
-                        self.spec.components.schema(
-                            component_id=http_schema_name,
-                            component=spec_utils.dataclass_schema_resolver(
-                                types.HTTPResponse
-                            ),
-                        )
+                        http_schema_name = types.HTTPResponse.__name__
+                        if http_schema_name not in self.spec.components.schemas:
+                            self.spec.components.schema(
+                                component_id=http_schema_name,
+                                component=spec_utils.dataclass_schema_resolver(
+                                    types.HTTPResponse
+                                ),
+                            )
 
-                    if schema_name not in self.spec.components.responses:
-                        component = {"schema": http_schema_name}
-                        if self.spec.openapi_version.major >= 3:
-                            component = {"content": {self.default_media: component}}
-                        self.spec.components.response(
-                            component_id=schema_name, component=component
-                        )
+                        if schema_name not in self.spec.components.responses:
+                            component = {"schema": http_schema_name}
+                            if self.spec.openapi_version.major >= 3:
+                                component = {"content": {self.default_media: component}}
+                            self.spec.components.response(
+                                component_id=schema_name, component=component
+                            )
