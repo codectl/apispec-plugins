@@ -31,7 +31,12 @@ class TestFlaskPlugin:
         def greeting():
             return "hello"
 
-        operations = {"get": {"parameters": [], "responses": {"200": {}}}}
+        operations = {
+            "get": {
+                "parameters": [],
+                "responses": {"200": {"description": "get a greeting"}},
+            }
+        }
         spec.path(view=greeting, operations=operations)
         paths = utils.get_paths(spec)
         assert "get" in paths["/hello"]
@@ -232,3 +237,68 @@ class TestFlaskPlugin:
 
         spec.path(view=bye, app=app)
         assert "/bye" in utils.get_paths(spec)
+
+    def test_auto_responses(self, app, spec):
+        class ResponsesView(MethodView):
+            """The greeting view."""
+
+            def get(self):
+                """A greeting endpoint.
+                ---
+                description: get a greeting
+                responses:
+                    200:
+                        description: received greeting
+                    400:
+                    404:
+                        description: greeting not found
+                    default:
+                        description: unexpected error
+                """
+                return "hello"
+
+            def post(self):
+                """Another greeting endpoint.
+                ---
+                description: post a greeting
+                responses:
+                    400:
+                    401:
+                        description: forbidden greeting
+                """
+                return "hello"
+
+        method_view = ResponsesView.as_view("responses")
+        app.add_url_rule("/hello", view_func=method_view)
+        spec.path(view=method_view)
+        paths = utils.get_paths(spec)
+
+        assert paths["/hello"]["get"] == {
+            "summary": "A greeting endpoint.",
+            "description": "get a greeting",
+            "responses": {
+                "200": {"description": "received greeting"},
+                "400": {
+                    "$ref": "#/responses/BadRequest"
+                    if spec.openapi_version.major < 3
+                    else "#/components/responses/BadRequest"
+                },
+                "404": {"description": "greeting not found"},
+                "default": {"description": "unexpected error"},
+            },
+        }
+
+        if spec.openapi_version.major < 3:
+            assert spec.to_dict()["responses"] == {
+                "BadRequest": {"schema": {"$ref": "#/definitions/HTTPResponse"}}
+            }
+        else:
+            assert utils.get_components(spec)["responses"] == {
+                "BadRequest": {
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/HTTPResponse"}
+                        }
+                    }
+                },
+            }
