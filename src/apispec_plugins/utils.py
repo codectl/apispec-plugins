@@ -3,7 +3,7 @@ import re
 import typing
 import urllib.parse
 from collections.abc import Sequence
-from dataclasses import asdict, fields
+from dataclasses import MISSING, asdict, fields
 
 from apispec import yaml_utils
 
@@ -100,6 +100,8 @@ def dataclass_schema_resolver(schema):
     for field in fields(schema):
         name = field.name
         definition["properties"][name] = {"type": _resolve_field_type(field)}
+        if field.default == MISSING and field.default_factory == MISSING:
+            definition["required"].append(name)
     return definition
 
 
