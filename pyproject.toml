@@ -9,7 +9,7 @@ packages = [
     { include = "*", from = "src" }
 ]
 homepage = ""
-repository = "https://github.com/rena2damas/apispec-plugins"
+repository = "https://github.com/codectl/apispec-plugins"
 documentation = ""
 keywords = [
     "apispec",
