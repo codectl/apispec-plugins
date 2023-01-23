@@ -148,7 +148,7 @@ limitations on that project were also addressed, like:
 * limited docstring spec processing;
 
 Tests & linting 🚥
-===============
+==================
 Run tests with ``tox``:
 
 .. code-block:: bash
