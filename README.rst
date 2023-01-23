@@ -5,11 +5,11 @@ apispec-plugins
 .. image:: https://img.shields.io/pypi/v/apispec-plugins
     :target: https://pypi.org/project/apispec-plugins
     :alt: PyPI version
-.. image:: https://github.com/rena2damas/apispec-plugins/actions/workflows/ci.yaml/badge.svg
-    :target: https://github.com/rena2damas/apispec-plugins/actions/workflows/ci.yaml
+.. image:: https://github.com/codectl/apispec-plugins/actions/workflows/ci.yaml/badge.svg
+    :target: https://github.com/codectl/apispec-plugins/actions/workflows/ci.yaml
     :alt: CI
-.. image:: https://codecov.io/gh/rena2damas/apispec-plugins/branch/master/graph/badge.svg
-    :target: https://app.codecov.io/gh/rena2damas/apispec-plugins/branch/master
+.. image:: https://codecov.io/gh/codectl/apispec-plugins/branch/master/graph/badge.svg
+    :target: https://app.codecov.io/gh/codectl/apispec-plugins/branch/master
     :alt: codecov
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
