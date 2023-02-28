@@ -6,7 +6,8 @@ from apispec.exceptions import APISpecError
 from flask import current_app
 from flask.views import MethodView
 
-from apispec_plugins import types, utils as spec_utils
+from apispec_plugins import utils as spec_utils
+from apispec_plugins.base import types
 
 
 class FlaskPlugin(BasePlugin):
