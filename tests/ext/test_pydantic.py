@@ -24,15 +24,15 @@ class TestPydanticPlugin:
         name = "John Doe"
 
     def test_resolve_response(self, spec):
-        media = "application/json"
+        mime = "application/json"
         spec.path(
             path="/users/{id}",
             operations={
-                "get": {"responses": {200: {"content": {media: {"schema": "User"}}}}}
+                "get": {"responses": {200: {"content": {mime: {"schema": "User"}}}}}
             },
         )
 
         path = utils.get_paths(spec)["/users/{id}"]
-        schema_ref = path["get"]["responses"]["200"]["content"][media]["schema"]
+        schema_ref = path["get"]["responses"]["200"]["content"][mime]["schema"]
         assert schema_ref["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
