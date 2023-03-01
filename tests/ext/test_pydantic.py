@@ -19,16 +19,18 @@ def spec(request):
 
 @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
 class TestPydanticPlugin:
-
     class User(BaseModel, metaclass=ModelMetaclass):
         id: int
         name = "John Doe"
 
     def test_resolve_response(self, spec):
         media = "application/json"
-        spec.path(path="/users/{id}", operations={
-            "get": {"responses": {200: {"content": {media: {"schema": "User"}}}}}
-        })
+        spec.path(
+            path="/users/{id}",
+            operations={
+                "get": {"responses": {200: {"content": {media: {"schema": "User"}}}}}
+            },
+        )
 
         path = utils.get_paths(spec)["/users/{id}"]
         schema_ref = path["get"]["responses"]["200"]["content"][media]["schema"]
