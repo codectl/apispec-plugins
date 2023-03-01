@@ -33,4 +33,4 @@ class TestPydanticPlugin:
         path = utils.get_paths(spec)["/users/{id}"]
         schema_ref = path["get"]["responses"]["200"]["content"][media]["schema"]
         assert schema_ref["$ref"] == "#/components/schemas/User"
-        assert utils.get_components(spec)["schemas"]["User"] == User.schema()
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
