@@ -17,36 +17,17 @@ class PydanticPlugin(BasePlugin):
         self.spec = spec
         self.resolver = OpenAPIResolver(spec=spec)
 
-    # def schema_helper(self, name: str, definition: dict, **kwargs: Any) -> None | dict:
-    #     model: None | BaseModel = kwargs.pop("model", None)
-    #     if not model:
-    #         return None
-    #
-    #     schema = model.schema(ref_template="#/components/schemas/{model}")
-    #
-    #     if "definitions" in schema:
-    #         for k, v in schema["definitions"].items():
-    #             try:
-    #                 self.spec.components.schema(k, v)
-    #             except DuplicateComponentNameError:
-    #                 pass
-    #
-    #     if "definitions" in schema:
-    #         del schema["definitions"]
-    #
-    #     return schema
+    def schema_helper(self, name: str, definition: dict, **kwargs: Any) -> None | dict:
+        model: BaseModel | None = kwargs.pop("model", None)
+        if not model:
+            return None
+
+        return model.schema()
 
     def operation_helper(
         self, path: str | None = None, operations: dict | None = None, **kwargs: Any
     ):
-        from pprint import pprint
-
-        # pprint(operations)
-
         for operation in (operations or {}).values():
-            if not isinstance(operation, dict):
-                continue
-
             if "parameters" in operation:
                 operation["parameters"] = self.resolver.resolve_parameters(
                     operation["parameters"]
@@ -71,19 +52,22 @@ class OpenAPIResolver:
     def resolve_response(self, response: dict):
         return self.resolve_schema(response)
 
-    def resolve_schema(self, data: str | dict) -> None:
+    def resolve_schema(self, data: str | dict, use_ref=True) -> None:
         if self.spec.openapi_version.major >= 3 and "content" in data:
             for media_type in data["content"].values():
                 self.resolve_schema(media_type)
         if "schema" in data:
             schema_data = data["schema"]
             schema_instance = self.resolve_schema_instance(schema_data)
-            # register schema
-            if schema_instance:
-                self.spec.components.schema(
-                    component_id=data["schema"],
-                    component=schema_instance.schema()
-                )
+            if schema_instance is not None:
+                # register schema as a component or resolve it inline
+                if use_ref:
+                    self.register_schema(schema=schema_instance)
+                else:
+                    data["schema"] = schema_instance.schema()
+
+    def register_schema(self, schema: type[BaseModel]):
+        self.spec.components.schema(component_id=schema.__name__, model=schema)
 
     @classmethod
     def resolve_schema_instance(
@@ -94,5 +78,5 @@ class OpenAPIResolver:
         if isinstance(schema, BaseModel):
             return schema.__class__
         if isinstance(schema, str):
-            return registry.PydanticRegistry.get_cls(schema)
+            return registry.ModelMetaclass.get_cls(schema)
         return None
