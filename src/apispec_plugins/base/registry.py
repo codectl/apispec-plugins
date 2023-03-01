@@ -1,17 +1,17 @@
 from typing import TypeVar
 
-from pydantic.main import ModelMetaclass
+from pydantic import BaseModel
 
 __all__ = (
-    "RegistryBase",
-    "PydanticRegistry",
+    "RegistryMixin",
+    "ModelMetaclass",
     "RegistryError",
 )
 
 T = TypeVar("T")
 
 
-class RegistryBase(type):
+class RegistryMixin(type):
 
     _registry: dict[str, T] = {}
 
@@ -35,7 +35,7 @@ class RegistryBase(type):
             ) from error
 
 
-class PydanticRegistry(ModelMetaclass, RegistryBase):
+class ModelMetaclass(type(BaseModel), RegistryMixin):
     """Harness registry metaclass for pydantic"""
 
 
