@@ -69,3 +69,33 @@ class TestPydanticPlugin:
         schema_ref = path["get"]["responses"]["200"]["content"][mime]["schema"]["items"]
         assert schema_ref["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_one_of_object_response(self, spec):
+        mime = "application/json"
+        spec.path(
+            path="/users/{id}",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        get:
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - User
+                                    - type: array
+                                      items: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users/{id}"]
+        refs = path["get"]["responses"]["200"]["content"][mime]["schema"]["oneOf"]
+        model_ref = "#/components/schemas/User"
+        assert refs == [
+            {"$ref": model_ref},
+            {"type": "array", "items": {"$ref": model_ref}},
+        ]
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()

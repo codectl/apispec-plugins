@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from apispec import BasePlugin, APISpec
-from apispec.exceptions import APISpecError
+from apispec.exceptions import APISpecError, DuplicateComponentNameError
 from apispec_plugins.base import registry
 from pydantic import BaseModel
 
@@ -23,7 +23,7 @@ class PydanticPlugin(BasePlugin):
         if not model:
             return None
 
-        return self.resolver.model_spec_conversion(model)
+        return self.resolver.oas_convert(model)
 
     def operation_helper(
         self, path: str | None = None, operations: dict | None = None, **kwargs: Any
@@ -63,11 +63,14 @@ class OpenAPIResolver:
         if isinstance(schema, dict):
             if schema.get("type") == "array" and "items" in schema:
                 schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
-            if schema.get("type") == "object" and "properties" in schema:
+            elif schema.get("type") == "object" and "properties" in schema:
                 schema["properties"] = {
                     k: self.resolve_schema(v, use_ref=use_ref)
                     for k, v in schema["properties"].items()
                 }
+            for keyword in ("oneOf", "anyOf", "allOf"):
+                if keyword in schema:
+                    schema[keyword] = [self.resolve_schema(s) for s in schema[keyword]]
             return schema
         elif isinstance(schema, str):
             model = self.resolve_schema_instance(schema)
@@ -81,13 +84,17 @@ class OpenAPIResolver:
                 self.register_model(model)
                 return schema
             else:
-                return self.model_spec_conversion(model)
+                return self.oas_convert(model)
 
     def register_model(self, model: BaseModel | type[BaseModel]) -> None:
-        self.spec.components.schema(component_id=model.__name__, model=model)
+        try:
+            self.spec.components.schema(component_id=model.__name__, model=model)
+        except DuplicateComponentNameError:
+            # suppress duplicate model registration
+            pass
 
     @staticmethod
-    def model_spec_conversion(model: BaseModel | type[BaseModel]) -> dict:
+    def oas_convert(model: BaseModel | type[BaseModel]) -> dict:
         """The pydantic model conversion to OAS is performed by pydentic itself."""
         return model.schema()
 
