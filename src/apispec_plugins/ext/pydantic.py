@@ -63,6 +63,11 @@ class OpenAPIResolver:
         if isinstance(schema, dict):
             if schema.get("type") == "array" and "items" in schema:
                 schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
+            if schema.get("type") == "object" and "properties" in schema:
+                schema["properties"] = {
+                    k: self.resolve_schema(v)
+                    for k, v in schema["properties"].items()
+                }
             return schema
         elif isinstance(schema, str):
             model = self.resolve_schema_instance(schema)
