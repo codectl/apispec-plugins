@@ -24,7 +24,7 @@ class TestPydanticPlugin:
         id: int
         name = "John Doe"
 
-    def test_resolve_response_single_object(self, spec):
+    def test_resolve_single_object_response(self, spec):
         mime = "application/json"
         spec.path(
             path="/users/{id}",
@@ -46,7 +46,7 @@ class TestPydanticPlugin:
         assert schema_ref["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
 
-    def test_resolve_response_multi_object(self, spec):
+    def test_resolve_multi_object_response(self, spec):
         mime = "application/json"
         spec.path(
             path="/users",
