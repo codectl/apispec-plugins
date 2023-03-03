@@ -51,10 +51,20 @@ class OpenAPIResolver:
                 schema = self.resolve_schema_instance(parameter["schema"])
 
     def resolve_response(self, response: dict):
-        return self.resolve_nested_schemas(response)
+        if self.spec.openapi_version.major == 2:
+            if "schema" in response:
+                self.resolve_schema(response["schema"])
+        if self.spec.openapi_version.major >= 3:
+            if "content" in response:
+                for media_type in response["content"].values():
+                    self.resolve_schema(media_type["schema"])
 
     def resolve_schema(self, schema: dict | str, use_ref=True) -> str | dict:
-        if isinstance(schema, str):
+        if isinstance(schema, dict):
+            if schema.get("type") == "array" and "items" in schema:
+                schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
+            return schema
+        elif isinstance(schema, str):
             model = self.resolve_schema_instance(schema)
             if model is None:
                 raise APISpecError(
@@ -67,21 +77,6 @@ class OpenAPIResolver:
                 return schema
             else:
                 return self.model_spec_conversion(model)
-        return self.resolve_nested_schemas(schema, use_ref=use_ref)
-
-    def resolve_nested_schemas(self, data: dict, use_ref=True) -> dict:
-
-        # OAS 2 and OAS 3 common props
-        if "schema" in data:
-            data["schema"] = self.resolve_schema(data["schema"], use_ref=use_ref)
-        elif data.get("type") == "array" and "items" in data:
-            data["items"] = self.resolve_schema(data["items"], use_ref=use_ref)
-
-        # OAS 3 content property
-        if self.spec.openapi_version.major >= 3 and "content" in data:
-            for media_type in data["content"].values():
-                self.resolve_nested_schemas(media_type, use_ref=use_ref)
-        return data
 
     def register_model(self, model: BaseModel | type[BaseModel]) -> None:
         self.spec.components.schema(component_id=model.__name__, model=model)
