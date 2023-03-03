@@ -18,34 +18,53 @@ class PydanticPlugin(BasePlugin):
         self.spec = spec
         self.resolver = OpenAPIResolver(spec=spec)
 
-    def schema_helper(self, name: str, definition: dict, **kwargs: Any) -> None | dict:
+    def schema_helper(self, name: str, definition: dict, **kwargs: Any) -> dict | None:
         model: BaseModel | None = kwargs.pop("model", None)
         if not model:
             return None
 
         return self.resolver.oas_convert(model)
 
-    def operation_helper(
-        self, path: str | None = None, operations: dict | None = None, **kwargs: Any
-    ):
-        for operation in (operations or {}).values():
-            if "parameters" in operation:
-                operation["parameters"] = self.resolver.resolve_parameters(
-                    operation["parameters"]
-                )
-            for response in operation.get("responses", {}).values():
-                self.resolver.resolve_response(response)
+    def response_helper(self, response: dict, **kwargs: Any) -> dict | None:
+        self.resolver.resolve_response(response)
+        return response
 
-            # props that are OAS 3 only
-            if self.spec.openapi_version.major >= 3:
-                # self.resolve_callback(operation.get("callbacks", {}))
-                if "requestBody" in operation:
-                    self.resolver.resolve_response(operation["requestBody"])
+    def parameter_helper(self, parameter: dict, **kwargs: Any) -> dict | None:
+        self.resolver.resolve_parameter(parameter)
+        return parameter
+
+    def header_helper(self, header: dict, **kwargs: Any) -> dict | None:
+        self.resolver.resolve_header(header)
+        return header
+
+    def operation_helper(
+        self,
+        path: str | None = None,
+        operations: dict | None = None,
+        **kwargs: Any,
+    ) -> None:
+        for operation in (operations or {}).values():
+            self.resolver.resolve_operation(operation)
 
 
 class OpenAPIResolver:
     def __init__(self, spec: APISpec):
         self.spec = spec
+
+    def resolve_operation(self, operation: dict):
+        # if "parameters" in operation:
+        #     operation["parameters"] = self.resolve_parameters(
+        #         operation["parameters"]
+        #     )
+        for response in operation.get("responses", {}).values():
+            self.resolve_response(response)
+
+        # props that are OAS 3 only
+        if self.spec.openapi_version.major >= 3:
+            # for callback in operation.get("callbacks", {}):
+            #     self.operation_helper(operation.get("callbacks", {}))
+            if "requestBody" in operation:
+                self.resolve_response(operation["requestBody"])
 
     def resolve_parameters(self, parameters: list[dict]):
         for parameter in parameters:
