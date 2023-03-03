@@ -65,7 +65,7 @@ class OpenAPIResolver:
                 schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
             if schema.get("type") == "object" and "properties" in schema:
                 schema["properties"] = {
-                    k: self.resolve_schema(v)
+                    k: self.resolve_schema(v, use_ref=use_ref)
                     for k, v in schema["properties"].items()
                 }
             return schema
