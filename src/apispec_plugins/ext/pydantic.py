@@ -33,12 +33,14 @@ class PydanticPlugin(BasePlugin):
                 operation["parameters"] = self.resolver.resolve_parameters(
                     operation["parameters"]
                 )
-            # if self.openapi_version.major >= 3:
-            #     self.resolve_callback(operation.get("callbacks", {}))
-            #     if "requestBody" in operation:
-            #         self.resolve_schema(operation["requestBody"])
             for response in operation.get("responses", {}).values():
                 self.resolver.resolve_response(response)
+
+            # props that are OAS 3 only
+            if self.spec.openapi_version.major >= 3:
+                # self.resolve_callback(operation.get("callbacks", {}))
+                if "requestBody" in operation:
+                    self.resolver.resolve_response(operation["requestBody"])
 
 
 class OpenAPIResolver:
