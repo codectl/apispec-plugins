@@ -12,6 +12,7 @@ from apispec_plugins.base import types
 __all__ = (
     "spec_from",
     "load_method_specs",
+    "load_specs_from_docstring",
     "path_parser",
     "dataclass_schema_resolver",
     "base_template",
