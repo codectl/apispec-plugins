@@ -69,7 +69,6 @@ class OASResolver:
     def resolve_callback(self, callback: dict):
         for event in callback.values():
             for operation in (event or {}).values():
-                print(operation)
                 self.resolve_operation(operation)
 
     def resolve_parameters(self, parameters: list[dict]):
@@ -78,7 +77,7 @@ class OASResolver:
                 schema = self.resolve_schema_instance(parameter["schema"])
 
     def resolve_response(self, response: dict):
-        if self.spec.openapi_version.major == 2:
+        if self.spec.openapi_version.major < 2:
             if "schema" in response:
                 self.resolve_schema(response["schema"])
         if self.spec.openapi_version.major >= 3:
