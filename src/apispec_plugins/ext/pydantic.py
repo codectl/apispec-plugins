@@ -16,7 +16,7 @@ class PydanticPlugin(BasePlugin):
     def init_spec(self, spec: APISpec):
         super().init_spec(spec)
         self.spec = spec
-        self.resolver = OpenAPIResolver(spec=spec)
+        self.resolver = OASResolver(spec=spec)
 
     def schema_helper(self, name: str, definition: dict, **kwargs: Any) -> dict | None:
         model: BaseModel | None = kwargs.pop("model", None)
@@ -47,7 +47,7 @@ class PydanticPlugin(BasePlugin):
             self.resolver.resolve_operation(operation)
 
 
-class OpenAPIResolver:
+class OASResolver:
     def __init__(self, spec: APISpec):
         self.spec = spec
 
@@ -61,10 +61,16 @@ class OpenAPIResolver:
 
         # props that are OAS 3 only
         if self.spec.openapi_version.major >= 3:
-            # for callback in operation.get("callbacks", {}):
-            #     self.operation_helper(operation.get("callbacks", {}))
+            for callback in operation.get("callbacks", {}).values():
+                self.resolve_callback(callback)
             if "requestBody" in operation:
                 self.resolve_response(operation["requestBody"])
+
+    def resolve_callback(self, callback: dict):
+        for event in callback.values():
+            for operation in (event or {}).values():
+                print(operation)
+                self.resolve_operation(operation)
 
     def resolve_parameters(self, parameters: list[dict]):
         for parameter in parameters:

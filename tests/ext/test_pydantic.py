@@ -120,3 +120,31 @@ class TestPydanticPlugin:
         schema_ref = path["post"]["requestBody"]["content"][mime]["schema"]
         assert schema_ref["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_callback(self, spec):
+        mime = "application/json"
+        spec.path(
+            path="/users",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        post:
+            callbacks:
+                onEvent:
+                    /callback:
+                        post:
+                            requestBody:
+                                content:
+                                    application/json:
+                                        schema: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users"]
+        print(spec.to_dict())
+        callback = path["post"]["callbacks"]["onEvent"]["/callback"]
+        schema_ref = callback["post"]["requestBody"]["content"][mime]["schema"]
+        # TODO: waiting PR on apispec to be merged to fix this
+        # assert schema_ref["$ref"] == "#/components/schemas/User"
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
