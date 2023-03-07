@@ -84,6 +84,9 @@ class OASResolver:
             if "content" in response:
                 for media_type in response["content"].values():
                     self.resolve_schema(media_type["schema"])
+            if "headers" in response:
+                for header in response["headers"].values():
+                    self.resolve_schema(header["schema"])
 
     def resolve_schema(self, schema: dict | str, use_ref=True) -> str | dict:
         if isinstance(schema, dict):

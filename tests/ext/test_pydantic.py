@@ -148,3 +148,24 @@ class TestPydanticPlugin:
         # TODO: waiting PR on apispec to be merged to fix this
         # assert schema_ref["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_helper(self, spec):
+        spec.path(
+            path="/users/{id}",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        get:
+            responses:
+                200:
+                    headers:
+                        X-User:
+                            schema: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users/{id}"]
+        schema_ref = path["get"]["responses"]["200"]["headers"]["X-User"]["schema"]
+        assert schema_ref["$ref"] == "#/components/schemas/User"
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
