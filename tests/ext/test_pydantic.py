@@ -1,6 +1,6 @@
 import pytest
 from apispec import APISpec
-from apispec_plugins.base.registry import ModelMetaclass
+from apispec_plugins.base.registry import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
 from apispec_plugins.utils import load_specs_from_docstring
 from pydantic import BaseModel
@@ -20,7 +20,7 @@ def spec(request):
 
 @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
 class TestPydanticPlugin:
-    class User(BaseModel, metaclass=ModelMetaclass):
+    class User(BaseModel, RegistryMixin):
         id: int
         name = "John Doe"
 

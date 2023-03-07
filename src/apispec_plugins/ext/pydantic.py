@@ -146,5 +146,5 @@ class OASResolver:
         if isinstance(schema, BaseModel):
             return schema.__class__
         if isinstance(schema, str):
-            return registry.ModelMetaclass.get_cls(schema)
+            return registry.RegistryMixin.get_cls(schema)
         return None

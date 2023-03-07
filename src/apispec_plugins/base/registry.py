@@ -1,42 +1,34 @@
 from typing import TypeVar
 
-from pydantic import BaseModel
-
 __all__ = (
     "RegistryMixin",
-    "ModelMetaclass",
     "RegistryError",
 )
 
 T = TypeVar("T")
 
 
-class RegistryMixin(type):
+class RegistryMixin:
 
     _registry: dict[str, T] = {}
 
-    def __new__(mcs, name, bases, attrs):
-        cls = type.__new__(mcs, name, bases, attrs)
-        mcs._registry[cls.__name__] = cls
-        return cls
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._registry[cls.__name__] = cls
 
     @classmethod
-    def get_registry(mcs):
-        return mcs._registry
+    def get_registry(cls):
+        return cls._registry
 
     @classmethod
-    def get_cls(mcs, classname: str) -> T:
+    def get_cls(cls, classname: str) -> T:
         try:
-            return mcs._registry[classname]
+            return cls._registry[classname]
         except KeyError as error:
             raise RegistryError(
                 f"Class with name {classname!r} was not found. You may need "
                 "to import the class."
             ) from error
-
-
-class ModelMetaclass(type(BaseModel), RegistryMixin):
-    """Harness registry metaclass for pydantic"""
 
 
 class RegistryError(NameError):
