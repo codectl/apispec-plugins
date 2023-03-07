@@ -24,84 +24,38 @@ class TestPydanticPlugin:
         id: int
         name = "John Doe"
 
-    def test_resolve_single_object_response(self, spec):
-        mime = "application/json"
+    def test_resolve_parameter(self, spec):
         spec.path(
             path="/users/{id}",
             operations=load_specs_from_docstring(
                 """
         ---
         get:
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema: User
+            parameters:
+                - in: path
+                  schema: User
+                - in: query
+                  name: user
+                  content:
+                    application/json:
+                        schema: User
         """
             ),
         )
 
         path = utils.get_paths(spec)["/users/{id}"]
-        schema_ref = path["get"]["responses"]["200"]["content"][mime]["schema"]
-        assert schema_ref["$ref"] == "#/components/schemas/User"
-        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
-
-    def test_resolve_multi_object_response(self, spec):
-        mime = "application/json"
-        spec.path(
-            path="/users",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items: User
-        """
-            ),
-        )
-
-        path = utils.get_paths(spec)["/users"]
-        schema_ref = path["get"]["responses"]["200"]["content"][mime]["schema"]["items"]
-        assert schema_ref["$ref"] == "#/components/schemas/User"
-        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
-
-    def test_resolve_one_of_object_response(self, spec):
-        mime = "application/json"
-        spec.path(
-            path="/users/{id}",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                oneOf:
-                                    - User
-                                    - type: array
-                                      items: User
-        """
-            ),
-        )
-
-        path = utils.get_paths(spec)["/users/{id}"]
-        refs = path["get"]["responses"]["200"]["content"][mime]["schema"]["oneOf"]
-        model_ref = "#/components/schemas/User"
-        assert refs == [
-            {"$ref": model_ref},
-            {"type": "array", "items": {"$ref": model_ref}},
+        props = self.User.schema()["properties"]
+        assert path["get"]["parameters"] == [
+            {
+                "in": "query",
+                "name": "user",
+                "content": {"application/json": {"schema": self.User.schema()}},
+            },
+            {"in": "path", "name": "id", "schema": props["id"], "required": True},
+            {"in": "path", "name": "name", "schema": props["name"], "required": True},
         ]
-        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
 
     def test_resolve_request_body(self, spec):
-        mime = "application/json"
         spec.path(
             path="/users",
             operations=load_specs_from_docstring(
@@ -117,12 +71,11 @@ class TestPydanticPlugin:
         )
 
         path = utils.get_paths(spec)["/users"]
-        schema_ref = path["post"]["requestBody"]["content"][mime]["schema"]
-        assert schema_ref["$ref"] == "#/components/schemas/User"
+        media_type = path["post"]["requestBody"]["content"]["application/json"]
+        assert media_type["schema"]["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
 
     def test_resolve_callback(self, spec):
-        mime = "application/json"
         spec.path(
             path="/users",
             operations=load_specs_from_docstring(
@@ -143,11 +96,83 @@ class TestPydanticPlugin:
 
         path = utils.get_paths(spec)["/users"]
         callback = path["post"]["callbacks"]["onEvent"]["/callback"]
-        schema_ref = callback["post"]["requestBody"]["content"][mime]["schema"]
-        assert schema_ref["$ref"] == "#/components/schemas/User"
+        media_type = callback["post"]["requestBody"]["content"]["application/json"]
+        assert media_type["schema"]["$ref"] == "#/components/schemas/User"
         assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
 
-    def test_resolve_helper(self, spec):
+    def test_resolve_single_object_response(self, spec):
+        spec.path(
+            path="/users/{id}",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        get:
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users/{id}"]
+        media_type = path["get"]["responses"]["200"]["content"]["application/json"]
+        assert media_type["schema"]["$ref"] == "#/components/schemas/User"
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_multi_object_response(self, spec):
+        spec.path(
+            path="/users",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        get:
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users"]
+        media_type = path["get"]["responses"]["200"]["content"]["application/json"]
+        assert media_type["schema"]["items"]["$ref"] == "#/components/schemas/User"
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_one_of_object_response(self, spec):
+        spec.path(
+            path="/users/{id}",
+            operations=load_specs_from_docstring(
+                """
+        ---
+        get:
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - User
+                                    - type: array
+                                      items: User
+        """
+            ),
+        )
+
+        path = utils.get_paths(spec)["/users/{id}"]
+        media_type = path["get"]["responses"]["200"]["content"]["application/json"]
+        assert media_type["schema"]["oneOf"] == [
+            {"$ref": "#/components/schemas/User"},
+            {"type": "array", "items": {"$ref": "#/components/schemas/User"}},
+        ]
+        assert utils.get_components(spec)["schemas"]["User"] == self.User.schema()
+
+    def test_resolve_response_helper(self, spec):
         spec.path(
             path="/users/{id}",
             operations=load_specs_from_docstring(

@@ -51,11 +51,9 @@ class OASResolver:
     def __init__(self, spec: APISpec):
         self.spec = spec
 
-    def resolve_operation(self, operation: dict):
-        # if "parameters" in operation:
-        #     operation["parameters"] = self.resolve_parameters(
-        #         operation["parameters"]
-        #     )
+    def resolve_operation(self, operation: dict) -> None:
+        for parameter in operation.get("parameters", ()):
+            self.resolve_parameter(parameter, operation=operation)
         for response in operation.get("responses", {}).values():
             self.resolve_response(response)
 
@@ -66,17 +64,27 @@ class OASResolver:
             if "requestBody" in operation:
                 self.resolve_response(operation["requestBody"])
 
-    def resolve_callback(self, callback: dict):
+    def resolve_callback(self, callback: dict) -> None:
         for event in callback.values():
             for operation in (event or {}).values():
                 self.resolve_operation(operation)
 
-    def resolve_parameters(self, parameters: list[dict]):
-        for parameter in parameters:
-            if "schema" in parameter and not isinstance(parameter["schema"], dict):
-                schema = self.resolve_schema_instance(parameter["schema"])
+    def resolve_parameter(self, parameter: dict, operation: dict) -> None:
+        if "schema" in parameter and not isinstance(parameter["schema"], dict):
+            operation["parameters"] = [
+                p for p in operation["parameters"] if p != parameter
+            ]
+            schema = self.resolve_schema(parameter["schema"], use_ref=False)
+            for name, props in schema["properties"].items():
+                param = {"in": parameter["in"], "name": name, "schema": props}
+                operation["parameters"].append(param)
+        elif "content" in parameter:
+            for media_type in parameter["content"].values():
+                media_type["schema"] = self.resolve_schema(
+                    media_type["schema"], use_ref=False
+                )
 
-    def resolve_response(self, response: dict):
+    def resolve_response(self, response: dict) -> None:
         if self.spec.openapi_version.major < 2:
             if "schema" in response:
                 self.resolve_schema(response["schema"])
@@ -88,7 +96,9 @@ class OASResolver:
                 for media_type in response["content"].values():
                     self.resolve_schema(media_type["schema"])
 
-    def resolve_schema(self, schema: dict | str, use_ref=True) -> str | dict:
+    def resolve_schema(
+        self, schema: dict | str | BaseModel | type[BaseModel], use_ref=True
+    ) -> str | dict:
         if isinstance(schema, dict):
             if schema.get("type") == "array" and "items" in schema:
                 schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
@@ -101,7 +111,7 @@ class OASResolver:
                 if keyword in schema:
                     schema[keyword] = [self.resolve_schema(s) for s in schema[keyword]]
             return schema
-        elif isinstance(schema, str):
+        elif isinstance(schema, (str, BaseModel, type[BaseModel])):
             model = self.resolve_schema_instance(schema)
             if model is None:
                 raise APISpecError(
