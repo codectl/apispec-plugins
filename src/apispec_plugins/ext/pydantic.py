@@ -81,12 +81,12 @@ class OASResolver:
             if "schema" in response:
                 self.resolve_schema(response["schema"])
         if self.spec.openapi_version.major >= 3:
-            if "content" in response:
-                for media_type in response["content"].values():
-                    self.resolve_schema(media_type["schema"])
             if "headers" in response:
                 for header in response["headers"].values():
                     self.resolve_schema(header["schema"])
+            if "content" in response:
+                for media_type in response["content"].values():
+                    self.resolve_schema(media_type["schema"])
 
     def resolve_schema(self, schema: dict | str, use_ref=True) -> str | dict:
         if isinstance(schema, dict):
