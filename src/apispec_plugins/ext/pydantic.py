@@ -23,7 +23,7 @@ class PydanticPlugin(BasePlugin):
         if not model:
             return None
 
-        return self.resolver.oas_convert(model)
+        return self.resolver.to_schema(model)
 
     def parameter_helper(self, parameter: dict, **kwargs: Any) -> dict | None:
         self.resolver.resolve_parameters([parameter])
@@ -51,20 +51,25 @@ class OASResolver:
     def __init__(self, spec: APISpec):
         self.spec = spec
 
+    def resolve_schema_props(self, props: dict, use_ref: bool) -> None:
+        if "schema" in props:
+            props["schema"] = self.resolve_schema(props["schema"], use_ref=use_ref)
+        elif props.get("type") == "array" and "items" in props:
+            props["items"] = self.resolve_schema(props["items"], use_ref=use_ref)
+        elif props.get("type") == "object" and "properties" in props:
+            props["properties"] = {
+                k: self.resolve_schema_props(v, use_ref=use_ref)
+                for k, v in props["properties"].items()
+            }
+        for kw in ("oneOf", "anyOf", "allOf"):
+            if kw in props:
+                props[kw] = [self.resolve_schema(s, use_ref=use_ref) for s in props[kw]]
+
     def resolve_schema(
         self, schema: dict | str | BaseModel | type[BaseModel], use_ref=True
     ) -> str | dict:
         if isinstance(schema, dict):
-            if schema.get("type") == "array" and "items" in schema:
-                schema["items"] = self.resolve_schema(schema["items"], use_ref=use_ref)
-            elif schema.get("type") == "object" and "properties" in schema:
-                schema["properties"] = {
-                    k: self.resolve_schema(v, use_ref=use_ref)
-                    for k, v in schema["properties"].items()
-                }
-            for keyword in ("oneOf", "anyOf", "allOf"):
-                if keyword in schema:
-                    schema[keyword] = [self.resolve_schema(s) for s in schema[keyword]]
+            self.resolve_schema_props(schema, use_ref=use_ref)
             return schema
         elif isinstance(schema, (str, BaseModel, type(BaseModel))):
             model = self.resolve_schema_instance(schema)
@@ -78,39 +83,36 @@ class OASResolver:
                 self.register_model(model)
                 return self.resolve_schema_name(schema)
             else:
-                return self.oas_convert(model)
+                return self.to_schema(model)
 
     def resolve_parameters(self, parameters: list[dict]) -> None:
         params = []
         for parameter in parameters:
             if "schema" in parameter and not isinstance(parameter["schema"], dict):
-                schema = self.resolve_schema(parameter["schema"], use_ref=False)
-                for name, props in schema["properties"].items():
+                self.resolve_schema(parameter, use_ref=False)
+                for name, props in parameter["schema"]["properties"].items():
                     param = {"in": parameter["in"], "name": name, "schema": props}
                     params.append(param)
             elif "content" in parameter:
                 for media_type in parameter["content"].values():
-                    schema = media_type["schema"]
-                    media_type["schema"] = self.resolve_schema(schema, use_ref=False)
+                    self.resolve_schema(media_type)
                 params.append(parameter)
         parameters[:] = params[:]
 
     def resolve_response(self, response: dict) -> None:
         if self.spec.openapi_version.major < 2:
             if "schema" in response:
-                response["schema"] = self.resolve_schema(response["schema"])
+                self.resolve_schema(response)
         if self.spec.openapi_version.major >= 3:
             if "headers" in response:
                 for header in response["headers"].values():
-                    header["schema"] = self.resolve_schema(
-                        header["schema"], use_ref=False
-                    )
+                    self.resolve_schema(header, use_ref=False)
             if "content" in response:
                 for media_type in response["content"].values():
-                    media_type["schema"] = self.resolve_schema(media_type["schema"])
+                    self.resolve_schema(media_type)
 
     def resolve_header(self, header: dict) -> None:
-        header["schema"] = self.resolve_schema(header["schema"], use_ref=False)
+        self.resolve_schema(header, use_ref=True)
 
     def resolve_operation(self, operation: dict) -> None:
         if "parameters" in operation:
@@ -138,7 +140,7 @@ class OASResolver:
             pass
 
     @staticmethod
-    def oas_convert(model: BaseModel | type[BaseModel]) -> dict:
+    def to_schema(model: BaseModel | type[BaseModel]) -> dict:
         """The pydantic model conversion to OAS is performed by pydentic itself."""
         return model.schema()
 
