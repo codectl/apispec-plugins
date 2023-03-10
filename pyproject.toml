@@ -25,6 +25,7 @@ keywords = [
     "api",
     "web",
     "flask",
+    "pydantic",
     "python",
     "python3"
 ]
