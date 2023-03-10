@@ -114,7 +114,7 @@ class OASResolver:
                     self.resolve_schema(media_type)
 
     def resolve_header(self, header: dict) -> None:
-        self.resolve_schema(header, use_ref=True)
+        self.resolve_schema(header, use_ref=False)
 
     def resolve_operation(self, operation: dict) -> None:
         if "parameters" in operation:
