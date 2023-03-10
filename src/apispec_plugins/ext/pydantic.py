@@ -23,7 +23,7 @@ class PydanticPlugin(BasePlugin):
         if not model:
             return None
 
-        return self.resolver.to_schema(model)
+        return self.resolver.resolve_schema(model, use_ref=False)
 
     def parameter_helper(self, parameter: dict, **kwargs: Any) -> dict | None:
         self.resolver.resolve_parameters([parameter])
