@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 from apispec import BasePlugin, APISpec
@@ -133,11 +134,9 @@ class OASResolver:
                 self.resolve_operation(operation)
 
     def register_model(self, model: BaseModel | type[BaseModel]) -> None:
-        try:
+        # suppress duplicate model registration
+        with contextlib.suppress(DuplicateComponentNameError):
             self.spec.components.schema(component_id=model.__name__, model=model)
-        except DuplicateComponentNameError:
-            # suppress duplicate model registration
-            pass
 
     @staticmethod
     def to_schema(model: BaseModel | type[BaseModel]) -> dict:
