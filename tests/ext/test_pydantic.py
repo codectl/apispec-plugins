@@ -1,6 +1,5 @@
 import pytest
 from apispec import APISpec
-from apispec.exceptions import APISpecError
 from apispec_plugins.base.registry import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
 from apispec_plugins.utils import load_specs_from_docstring
