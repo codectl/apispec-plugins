@@ -103,7 +103,7 @@ class OASResolver:
         if self.spec.openapi_version.major < 3:
             if "schema" in response:
                 self.resolve_schema(response)
-        if self.spec.openapi_version.major >= 3:
+        elif self.spec.openapi_version.major >= 3:
             if "headers" in response:
                 for header in response["headers"].values():
                     self.resolve_schema(header, use_ref=False)
