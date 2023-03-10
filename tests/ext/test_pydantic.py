@@ -4,10 +4,14 @@ import pytest
 from apispec import APISpec
 from apispec_plugins.base.registry import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
-from apispec_plugins.utils import load_specs_from_docstring
 from pydantic import BaseModel
 
 from .. import utils
+
+
+class Pet(BaseModel, RegistryMixin):
+    id: Optional[int]
+    name: str
 
 
 @pytest.fixture(params=("2.0", "3.1.0"))
@@ -24,25 +28,16 @@ def spec(request):
     )
 
 
-class Pet(BaseModel, RegistryMixin):
-    id: Optional[int]
-    name: str
+@pytest.fixture(params=(Pet, Pet(name="Max"), "Pet"))
+def schema(request):
+    return request.param
 
 
 class TestPydanticPlugin:
-
-    def test_resolve_parameter(self, spec):
+    def test_resolve_parameter(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            parameters:
-                - in: path
-                  schema: Pet
-        """
-            ),
+            operations={"get": {"parameters": [{"in": "path", "schema": schema}]}},
         )
 
         path = utils.get_paths(spec)["/pet/{petId}"]
@@ -53,21 +48,20 @@ class TestPydanticPlugin:
         ]
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_resolve_parameter_v3(self, spec):
+    def test_resolve_parameter_v3(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            parameters:
-                - in: query
-                  name: pet
-                  content:
-                    application/json:
-                        schema: Pet
-        """
-            ),
+            operations={
+                "get": {
+                    "parameters": [
+                        {
+                            "in": "query",
+                            "name": "pet",
+                            "content": {"application/json": {"schema": schema}},
+                        }
+                    ]
+                }
+            },
         )
 
         path = utils.get_paths(spec)["/pet/{petId}"]
@@ -85,19 +79,11 @@ class TestPydanticPlugin:
         assert "Pet" in utils.get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_resolve_request_body(self, spec):
+    def test_resolve_request_body(self, spec, schema):
+        content = {"content": {"application/json": {"schema": schema}}}
         spec.path(
             path="/pet",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        post:
-            requestBody:
-                content:
-                    application/json:
-                        schema: Pet
-        """
-            ),
+            operations={"post": {"requestBody": content}},
         )
 
         path = utils.get_paths(spec)["/pet"]
@@ -106,23 +92,17 @@ class TestPydanticPlugin:
         assert "Pet" in utils.get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_resolve_callback(self, spec):
+    def test_resolve_callback(self, spec, schema):
+        content = {"content": {"application/json": {"schema": schema}}}
         spec.path(
             path="/pet",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        post:
-            callbacks:
-                onEvent:
-                    /callback:
-                        post:
-                            requestBody:
-                                content:
-                                    application/json:
-                                        schema: Pet
-        """
-            ),
+            operations={
+                "post": {
+                    "callbacks": {
+                        "onEvent": {"/callback": {"post": {"requestBody": content}}}
+                    }
+                }
+            },
         )
 
         path = utils.get_paths(spec)["/pet"]
@@ -131,11 +111,11 @@ class TestPydanticPlugin:
         assert utils.get_schema(spec, callback["post"]["requestBody"]) == pet_ref
         assert "Pet" in utils.get_schemas(spec)
 
-    def test_resolve_single_object_response(self, spec):
-        response = {"schema": "Pet"}
+    def test_resolve_single_object_response(self, spec, schema):
+        response = {"schema": schema}
         if spec.openapi_version.major >= 3:
             response = {"content": {"application/json": response}}
-        operations = {"get": {"responses": {200: response}}}
+        operations = {"get": {"responses": {"200": response}}}
         spec.path(path="/pet/{petId}", operations=operations)
 
         path = utils.get_paths(spec)["/pet/{petId}"]
@@ -143,11 +123,11 @@ class TestPydanticPlugin:
         assert utils.get_schema(spec, path["get"]["responses"]["200"]) == pet_ref
         assert "Pet" in utils.get_schemas(spec)
 
-    def test_resolve_multi_object_response(self, spec):
-        response = {"schema": {"type": "array", "items": "Pet"}}
+    def test_resolve_multi_object_response(self, spec, schema):
+        response = {"schema": {"type": "array", "items": schema}}
         if spec.openapi_version.major >= 3:
             response = {"content": {"application/json": response}}
-        spec.path(path="/pet", operations={"get": {"responses": {200: response}}})
+        spec.path(path="/pet", operations={"get": {"responses": {"200": response}}})
 
         path = utils.get_paths(spec)["/pet"]
         response_ref = utils.get_schema(spec, path["get"]["responses"]["200"])["items"]
@@ -155,24 +135,11 @@ class TestPydanticPlugin:
         assert "Pet" in utils.get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_resolve_one_of_object_response(self, spec):
+    def test_resolve_one_of_object_response(self, spec, schema):
+        one_of = [schema, {"type": "array", "items": schema}]
+        content = {"content": {"application/json": {"schema": {"oneOf": one_of}}}}
         spec.path(
-            path="/pet/{petId}",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                oneOf:
-                                    - Pet
-                                    - type: array
-                                      items: Pet
-        """
-            ),
+            path="/pet/{petId}", operations={"get": {"responses": {"200": content}}}
         )
 
         path = utils.get_paths(spec)["/pet/{petId}"]
@@ -182,20 +149,14 @@ class TestPydanticPlugin:
         assert "Pet" in utils.get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_resolve_response_header(self, spec):
+    def test_resolve_response_header(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
-            operations=load_specs_from_docstring(
-                """
-        ---
-        get:
-            responses:
-                200:
-                    headers:
-                        X-Pet:
-                            schema: Pet
-        """
-            ),
+            operations={
+                "get": {
+                    "responses": {"200": {"headers": {"X-Pet": {"schema": schema}}}}
+                }
+            },
         )
 
         path = utils.get_paths(spec)["/pet/{petId}"]
