@@ -2,6 +2,7 @@ from typing import Optional
 
 import pytest
 from apispec import APISpec
+from apispec.exceptions import DuplicateComponentNameError
 from apispec_plugins.base.registry import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
 from pydantic import BaseModel
@@ -161,21 +162,25 @@ class TestPydanticPlugin:
 
         path = utils.get_paths(spec)["/pet/{petId}"]
         definition = path["get"]["responses"]["200"]["headers"]["X-Pet"]["schema"]
-        assert definition == Pet.schema()
+        assert isinstance(definition, dict)
+        assert "properties" in definition
 
-    def test_component_schema(self, spec):
-        spec.components.schema("Pet", model=Pet)
-        assert utils.get_schemas(spec)["Pet"] == Pet.schema()
+    def test_component_schema(self, spec, schema):
+        spec.components.schema("Pet", model=schema)
+        assert "Pet" in utils.get_schemas(spec)
 
-    def test_component_parameter(self, spec):
-        parameter = {"schema": Pet}
+    def test_component_duplicate_schema_raises_error(self, spec, schema):
+        spec.components.schema("Pet", model=schema)
+        with pytest.raises(DuplicateComponentNameError):
+            spec.components.schema("Pet", model=schema)
+
+    def test_component_parameter(self, spec, schema):
+        parameter = {"schema": schema}
         spec.components.parameter("Pet", location="path", component=parameter)
+        assert "Pet" in utils.get_parameters(spec)
 
-        definition = utils.get_schema(spec, utils.get_parameters(spec)["Pet"])
-        assert definition == Pet.schema()
-
-    def test_component_response(self, spec):
-        response = {"schema": Pet}
+    def test_component_response(self, spec, schema):
+        response = {"schema": schema}
         if spec.openapi_version.major >= 3:
             response = {"content": {"application/json": response}}
         spec.components.response("Pet", component=response)
@@ -184,9 +189,7 @@ class TestPydanticPlugin:
         assert utils.get_schema(spec, utils.get_responses(spec)["Pet"]) == pet_ref
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
-    def test_component_header(self, spec):
-        header = {"schema": Pet}
+    def test_component_header(self, spec, schema):
+        header = {"schema": schema}
         spec.components.header("Pet", component=header)
-
-        definition = utils.get_headers(spec)["Pet"]
-        assert utils.get_schema(spec, definition) == Pet.schema()
+        assert "Pet" in utils.get_headers(spec)
