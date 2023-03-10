@@ -26,6 +26,8 @@ class PydanticPlugin(BasePlugin):
         return self.resolver.resolve_schema(model, use_ref=False)
 
     def parameter_helper(self, parameter: dict, **kwargs: Any) -> dict | None:
+        if "schema" in parameter:
+            raise APISpecError("Parameter type 'schema' not supported.")
         self.resolver.resolve_parameters([parameter])
         return parameter
 
@@ -100,7 +102,7 @@ class OASResolver:
         parameters[:] = params[:]
 
     def resolve_response(self, response: dict) -> None:
-        if self.spec.openapi_version.major < 2:
+        if self.spec.openapi_version.major < 3:
             if "schema" in response:
                 self.resolve_schema(response)
         if self.spec.openapi_version.major >= 3:
