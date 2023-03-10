@@ -90,8 +90,8 @@ class TestPydanticPlugin:
         )
 
         path = utils.get_paths(spec)["/users"]
-        media_type = path["post"]["requestBody"]["content"]["application/json"]
-        assert media_type["schema"]["$ref"] == "#/components/schemas/User"
+        schema_ref = utils.get_schema(spec, base=path["post"]["requestBody"])
+        assert schema_ref == utils.build_ref(spec, "schema", "User")
         assert utils.get_schemas(spec)["User"] == self.User.schema()
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
@@ -116,8 +116,8 @@ class TestPydanticPlugin:
 
         path = utils.get_paths(spec)["/users"]
         callback = path["post"]["callbacks"]["onEvent"]["/callback"]
-        media_type = callback["post"]["requestBody"]["content"]["application/json"]
-        assert media_type["schema"]["$ref"] == "#/components/schemas/User"
+        schema_ref = utils.get_schema(spec, base=callback["post"]["requestBody"])
+        assert schema_ref == utils.build_ref(spec, "schema", "User")
         assert utils.get_schemas(spec)["User"] == self.User.schema()
 
     def test_resolve_single_object_response(self, spec):
