@@ -18,8 +18,8 @@ def spec(request):
         openapi_version=request.param,
         plugins=(PydanticPlugin(),),
         info={
-            "description": "This is a sample Pet Store Server based which can be found "
-            "at https://petstore3.swagger.io."
+            "description": "This is a sample Pet Store Server based on the OpenAPI "
+            "specifications which can be found at https://petstore3.swagger.io."
         },
     )
 
