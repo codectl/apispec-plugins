@@ -197,17 +197,19 @@ class TestPydanticPlugin:
         spec.components.schema("User", model=self.User)
         assert utils.get_schemas(spec)["User"] == self.User.schema()
 
-    def test_component_schema_parameter_raises_error(self, spec):
+    def test_component_schema_parameter(self, spec):
         schema = {"schema": self.User}
-        with pytest.raises(APISpecError):
-            spec.components.parameter("User", location="path", component=schema)
+        spec.components.parameter("User", location="path", component=schema)
+
+        schema_ref = utils.build_ref(spec, "schema", "User")
+        assert utils.get_schema(spec, utils.get_parameters(spec)["User"]) == schema_ref
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     @pytest.mark.skip(reason="waiting PR#831 on apispec to be merged")
     def test_component_parameter_v3(self, spec):
         schema = {"schema": self.User}
-        content = {"content": {"application/json": schema}}
-        spec.components.parameter("User", location="path", component=content)
+        parameter = {"content": {"application/json": schema}}
+        spec.components.parameter("User", location="path", component=parameter)
 
         schema_ref = utils.build_ref(spec, "schema", "User")
         assert utils.get_parameters(spec)["User"] == schema_ref

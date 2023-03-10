@@ -26,8 +26,6 @@ class PydanticPlugin(BasePlugin):
         return self.resolver.resolve_schema(model, use_ref=False)
 
     def parameter_helper(self, parameter: dict, **kwargs: Any) -> dict | None:
-        if "schema" in parameter:
-            raise APISpecError("Parameter type 'schema' not supported.")
         self.resolver.resolve_parameters([parameter])
         return parameter
 
@@ -87,14 +85,17 @@ class OASResolver:
             else:
                 return self.to_schema(model)
 
-    def resolve_parameters(self, parameters: list[dict]) -> None:
+    def resolve_parameters(self, parameters: list[dict], use_ref=True) -> None:
         params = []
         for parameter in parameters:
             if "schema" in parameter and not isinstance(parameter["schema"], dict):
-                self.resolve_schema(parameter, use_ref=False)
-                for name, props in parameter["schema"]["properties"].items():
-                    param = {"in": parameter["in"], "name": name, "schema": props}
-                    params.append(param)
+                self.resolve_schema(parameter, use_ref=use_ref)
+                if use_ref:
+                    params.append(parameter)
+                else:
+                    for name, props in parameter["schema"]["properties"].items():
+                        param = {"in": parameter["in"], "name": name, "schema": props}
+                        params.append(param)
             elif "content" in parameter:
                 for media_type in parameter["content"].values():
                     self.resolve_schema(media_type)
@@ -118,7 +119,7 @@ class OASResolver:
 
     def resolve_operation(self, operation: dict) -> None:
         if "parameters" in operation:
-            self.resolve_parameters(operation["parameters"])
+            self.resolve_parameters(operation["parameters"], use_ref=False)
         for response in operation.get("responses", {}).values():
             self.resolve_response(response)
 
