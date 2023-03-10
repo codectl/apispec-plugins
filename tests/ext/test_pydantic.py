@@ -125,7 +125,8 @@ class TestPydanticPlugin:
         response = {"schema": "User"}
         if spec.openapi_version.major >= 3:
             response = {"content": {"application/json": response}}
-        spec.path(path="/users/{id}", operations={"get": {"responses": {200: response}}})
+        operations = {"get": {"responses": {200: response}}}
+        spec.path(path="/users/{id}", operations=operations)
 
         path = utils.get_paths(spec)["/users/{id}"]
         schema_ref = utils.get_schema(spec, base=path["get"]["responses"]["200"])
@@ -198,11 +199,11 @@ class TestPydanticPlugin:
         assert utils.get_schemas(spec)["User"] == self.User.schema()
 
     def test_component_schema_parameter(self, spec):
-        schema = {"schema": self.User}
-        spec.components.parameter("User", location="path", component=schema)
+        parameter = {"schema": self.User}
+        spec.components.parameter("User", location="path", component=parameter)
 
-        schema_ref = utils.build_ref(spec, "schema", "User")
-        assert utils.get_schema(spec, utils.get_parameters(spec)["User"]) == schema_ref
+        schema = utils.get_schema(spec, utils.get_parameters(spec)["User"])
+        assert schema == self.User.schema()
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     @pytest.mark.skip(reason="waiting PR#831 on apispec to be merged")
