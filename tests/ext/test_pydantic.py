@@ -24,10 +24,12 @@ def spec(request):
     )
 
 
+class Pet(BaseModel, RegistryMixin):
+    id: Optional[int]
+    name: str
+
+
 class TestPydanticPlugin:
-    class Pet(BaseModel, RegistryMixin):
-        id: Optional[int]
-        name: str
 
     def test_resolve_parameter(self, spec):
         spec.path(
@@ -44,7 +46,7 @@ class TestPydanticPlugin:
         )
 
         path = utils.get_paths(spec)["/pet/{petId}"]
-        props = self.Pet.schema()["properties"]
+        props = Pet.schema()["properties"]
         assert path["get"]["parameters"] == [
             {"in": "path", "name": "id", "schema": props["id"], "required": True},
             {"in": "path", "name": "name", "schema": props["name"], "required": True},
@@ -198,21 +200,21 @@ class TestPydanticPlugin:
 
         path = utils.get_paths(spec)["/pet/{petId}"]
         definition = path["get"]["responses"]["200"]["headers"]["X-Pet"]["schema"]
-        assert definition == self.Pet.schema()
+        assert definition == Pet.schema()
 
     def test_component_schema(self, spec):
-        spec.components.schema("Pet", model=self.Pet)
-        assert utils.get_schemas(spec)["Pet"] == self.Pet.schema()
+        spec.components.schema("Pet", model=Pet)
+        assert utils.get_schemas(spec)["Pet"] == Pet.schema()
 
     def test_component_parameter(self, spec):
-        parameter = {"schema": self.Pet}
+        parameter = {"schema": Pet}
         spec.components.parameter("Pet", location="path", component=parameter)
 
         definition = utils.get_schema(spec, utils.get_parameters(spec)["Pet"])
-        assert definition == self.Pet.schema()
+        assert definition == Pet.schema()
 
     def test_component_response(self, spec):
-        response = {"schema": self.Pet}
+        response = {"schema": Pet}
         if spec.openapi_version.major >= 3:
             response = {"content": {"application/json": response}}
         spec.components.response("Pet", component=response)
@@ -222,8 +224,8 @@ class TestPydanticPlugin:
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_component_header(self, spec):
-        header = {"schema": self.Pet}
+        header = {"schema": Pet}
         spec.components.header("Pet", component=header)
 
         definition = utils.get_headers(spec)["Pet"]
-        assert utils.get_schema(spec, definition) == self.Pet.schema()
+        assert utils.get_schema(spec, definition) == Pet.schema()
