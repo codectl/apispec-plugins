@@ -282,7 +282,7 @@ class TestFlaskPlugin:
                 "BadRequest": {"schema": {"$ref": "#/definitions/HTTPResponse"}}
             }
         else:
-            assert utils.get_components(spec)["responses"] == {
+            assert utils.get_responses(spec) == {
                 "BadRequest": {
                     "content": {
                         "application/json": {

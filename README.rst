@@ -26,6 +26,7 @@ Features
 * Supports the OpenAPI Specification (versions 2 and 3)
 * Currently supported frameworks/plugins include:
 
+  * ``apispec_plugins.ext.pydantic``
   * ``apispec_plugins.webframeworks.flask``
 
 Installation
@@ -36,53 +37,69 @@ Install the package directly from ``PyPI`` (recommended):
 
    $ pip install apispec-plugins
 
-Plugin dependencies like ``Flask`` are not installed with the package by default. To
-have ``Flask`` installed, do like so:
+Plugin dependencies like ``pydantic`` and ``flask`` are not installed with the package by default. To
+have ``pydantic`` and ``flask`` installed, run:
 
 .. code-block:: bash
 
-   $ pip install apispec-plugins[flask]
+   $ pip install apispec-plugins[pydantic,flask]
 
 Example Usage
 =============
 .. code-block:: python
 
-   from apispec import APISpec
-   from apispec_plugins.webframeworks.flask import FlaskPlugin
-   from flask import Flask
+    from typing import Optional
 
-   spec = APISpec(
-       title="Pet Store",
-       version="1.0.0",
-       openapi_version="2.0",
-       info=dict(description="A minimal pet store API"),
-       plugins=(FlaskPlugin(),),
-   )
-
-   app = Flask(__name__)
+    from apispec import APISpec
+    from apispec_plugins.base.registry import RegistryMixin
+    from apispec_plugins.ext.pydantic import PydanticPlugin
+    from apispec_plugins.webframeworks.flask import FlaskPlugin
+    from flask import Flask
+    from pydantic import BaseModel
 
 
-   @app.route("/pet/<petId>")
-   def pet(petId):
-       """Find pet by ID.
-       ---
-       get:
-           parameters:
-               - in: path
-                 name: petId
-           responses:
-               200:
-                   description: display pet data
-       """
-       return f"Display pet with ID {petId}"
+    # set APISpec plugins
+    spec = APISpec(
+        title="Pet Store",
+        version="1.0.0",
+        openapi_version="3.1.0",
+        info=dict(description="A minimal pet store API"),
+        plugins=(FlaskPlugin(), PydanticPlugin()),
+    )
 
 
-   # Since `path` inspects the view and its route,
-   # we need to be in a Flask request context
-   with app.test_request_context():
-       spec.path(view=pet)
+    # optional Flask support
+    app = Flask(__name__)
 
-Alternatively, a ``Flask`` ``MethodView`` can be used:
+
+    # optional pydantic support
+    class Pet(BaseModel, RegistryMixin):
+        id: Optional[int]
+        name: str
+
+
+    @app.route("/pet/<petId>")
+    def pet(petId):
+        """Find pet by ID.
+        ---
+        get:
+            parameters:
+                - in: path
+                  name: petId
+            responses:
+                 200:
+                     description: display pet data
+                     content:
+                         application/json:
+                             schema: Pet
+        """
+        return f"Display pet with ID {petId}"
+
+        # register `path` for the Flask route
+        with app.test_request_context():
+            spec.path(view=pet)
+
+Alternatively, to ``Flask`` routes, ``MethodView`` can be used:
 
 .. code-block:: python
 
@@ -97,8 +114,7 @@ Alternatively, a ``Flask`` ``MethodView`` can be used:
 
    app.add_url_rule("/pet/<petId>", view_func=PetAPI.as_view("pet_view"))
 
-There is also easy integration with other packages like
-``Flask-RESTful``:
+There is also easy integration with other packages like ``Flask-RESTful``:
 
 .. code-block:: python
 
@@ -137,10 +153,9 @@ set specs:
 
 Why not ``apispec-webframeworks``?
 ==================================
-The conceiving of this project was based on `apispec-webframeworks <https://github
-.com/marshmallow-code/apispec-webframeworks>`__. While that project is focused on
-integrating web frameworks with ``APISpec``, this repository goes a step further in
-providing the best integration possible with the ``APISpec`` standards. Some
+The conceiving of this project was based on `apispec-webframeworks <https://github.com/marshmallow-code/
+apispec-webframeworks>`__. While that project is focused on integrating web frameworks with ``APISpec``, this
+repository goes a step further in providing the best integration possible with the ``APISpec`` standards. Some
 limitations on that project were also addressed, like:
 
 * a path cannot register no more than 1 single rule per endpoint;
