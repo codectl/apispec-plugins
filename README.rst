@@ -114,22 +114,6 @@ Alternatively, to ``Flask`` routes, ``MethodView`` can be used:
 
    app.add_url_rule("/pet/<petId>", view_func=PetAPI.as_view("pet_view"))
 
-There is also easy integration with other packages like ``Flask-RESTful``:
-
-.. code-block:: python
-
-   from flask_restful import Api, Resource
-
-
-   class PetAPI(Resource):
-       def get(self, petId):
-           # get pet by ID
-           pass
-
-
-   api = Api(app)
-   api.add_resource(PetAPI, "/pet/<petId>", endpoint="pet")
-
 Dynamic specs
 -------------
 As seen so far, specs are specified in the docstring of the view or
@@ -155,11 +139,10 @@ Why not ``apispec-webframeworks``?
 ==================================
 The conceiving of this project was based on `apispec-webframeworks <https://github.com/marshmallow-code/
 apispec-webframeworks>`__. While that project is focused on integrating web frameworks with ``APISpec``, this
-repository goes a step further in providing the best integration possible with the ``APISpec`` standards. Some
+project goes a step further in providing the best integration possible with the ``APISpec`` standards. Some
 limitations on that project were also addressed, like:
 
 * a path cannot register no more than 1 single rule per endpoint;
-* support for additional libraries like ``Flask-RESTful``;
 * limited docstring spec processing;
 
 Tests & linting 🚥
