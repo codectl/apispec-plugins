@@ -50,6 +50,19 @@ runs:
       shell: bash
       run: echo "$APPDATA\Python\Scripts" >> $GITHUB_PATH
 
+    - name: show env
+      shell: bash
+      run: env
+
+    - name: show poetry path
+      shell: bash
+      run: |
+        python -c "import site; print(site.getuserbase())"
+        which python
+        echo "$HOME"
+        echo "$PYTHONPATH"
+        env
+
     - name: Configure poetry
       shell: bash
       run: poetry config virtualenvs.in-project true
