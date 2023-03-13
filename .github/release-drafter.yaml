@@ -51,10 +51,12 @@ autolabeler:
     branch: [ "/^(hot)?fix\/.+/" ]
     title: [ "/^(hot)?fix:/" ]
   - label: deprecated
+    branch: [ "/^deprecat(ed|ion)\/.+/" ]
     title: [ "/\\(deprecat(ed|ion)\\)/i" ]
   - label: dependencies
     title: [ "/\\((dev-)?dep(s|endenc(y|ies))(-dev)?\\)/i" ]
   - label: documentation
+    branch: [ "/^docs\/.+/" ]
     title: [ "/^docs/", "/\\(docs\\)/i" ]
     files: [ "*.\\.md", "*.\\.rst" ]
   - label: feature
