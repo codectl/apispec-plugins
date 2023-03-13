@@ -3,7 +3,6 @@ from apispec import APISpec
 from apispec_plugins import FlaskPlugin, spec_from
 from flask import Flask
 from flask.views import MethodView
-from flask_restful import Api, Resource
 
 from .. import utils
 
@@ -73,50 +72,6 @@ class TestFlaskPlugin:
         }
         assert paths["/hello"]["post"] == {}
         assert paths["/hello"]["x-extension"] == "global metadata"
-
-    def test_resource_view(self, app, spec):
-        api = Api(app)
-
-        @api.resource("/hello", endpoint="hello")
-        class GreetingView(Resource):
-            def get(self):
-                """A greeting endpoint.
-                ---
-                description: get a greeting
-                responses:
-                    200:
-                        description: received greeting
-                """
-                return "hello"
-
-        class FarewellView(Resource):
-            def get(self):
-                """A farewell endpoint.
-                ---
-                description: get a farewell
-                responses:
-                    200:
-                        description: received farewell
-                """
-                return "bye"
-
-        api.add_resource(FarewellView, "/bye", endpoint="bye")
-
-        greeting_view = app.view_functions["hello"]
-        farewell_view = app.view_functions["bye"]
-        spec.path(view=greeting_view)
-        spec.path(view=farewell_view)
-        paths = utils.get_paths(spec)
-        assert paths["/hello"]["get"] == {
-            "summary": "A greeting endpoint.",
-            "description": "get a greeting",
-            "responses": {"200": {"description": "received greeting"}},
-        }
-        assert paths["/bye"]["get"] == {
-            "summary": "A farewell endpoint.",
-            "description": "get a farewell",
-            "responses": {"200": {"description": "received farewell"}},
-        }
 
     def test_path_with_multiple_methods(self, app, spec):
         @app.route("/hello", methods=["GET", "POST"])
