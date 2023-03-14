@@ -17,7 +17,7 @@ def app():
 @pytest.fixture(scope="function", params=("2.0", "3.0.0"))
 def spec(request):
     return APISpec(
-        title="Test Suite",
+        title="Swagger Petstore",
         version="1.0.0",
         openapi_version=request.param,
         plugins=(FlaskPlugin(),),
@@ -26,84 +26,84 @@ def spec(request):
 
 class TestFlaskPlugin:
     def test_function_view(self, app, spec):
-        @app.route("/hello")
-        def greeting():
-            return "hello"
+        @app.route("/pet")
+        def pet():
+            return "Max"
 
         operations = {
             "get": {
                 "parameters": [],
-                "responses": {"200": {"description": "get a greeting"}},
+                "responses": {"200": {"description": "get a pet"}},
             }
         }
-        spec.path(view=greeting, operations=operations)
+        spec.path(view=pet, operations=operations)
         paths = utils.get_paths(spec)
-        assert "get" in paths["/hello"]
-        assert paths["/hello"] == operations
+        assert "get" in paths["/pet"]
+        assert paths["/pet"] == operations
 
     def test_method_view(self, app, spec):
-        class GreetingView(MethodView):
+        class PetView(MethodView):
             """The greeting view.
             ---
             x-extension: global metadata
             """
 
             def get(self):
-                """A greeting endpoint.
+                """Get a pet's name.
                 ---
-                description: get a greeting
+                description: get a pet's name
                 responses:
                     200:
-                        description: received greeting
+                        description: the pet's name
                 """
-                return "hello"
+                return "Max"
 
             def post(self):
                 return {}
 
-        method_view = GreetingView.as_view("hello")
-        app.add_url_rule("/hello", view_func=method_view, methods=("GET", "POST"))
+        method_view = PetView.as_view("pet")
+        app.add_url_rule("/pet", view_func=method_view, methods=("GET", "POST"))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-        assert paths["/hello"]["get"] == {
-            "summary": "A greeting endpoint.",
-            "description": "get a greeting",
-            "responses": {"200": {"description": "received greeting"}},
+        assert paths["/pet"]["get"] == {
+            "summary": "Get a pet's name.",
+            "description": "get a pet's name",
+            "responses": {"200": {"description": "the pet's name"}},
         }
-        assert paths["/hello"]["post"] == {}
-        assert paths["/hello"]["x-extension"] == "global metadata"
+        assert paths["/pet"]["post"] == {}
+        assert paths["/pet"]["x-extension"] == "global metadata"
 
     def test_path_with_multiple_methods(self, app, spec):
-        @app.route("/hello", methods=["GET", "POST"])
-        def greeting():
-            return "hello"
+        @app.route("/pet", methods=["GET", "POST"])
+        def pet():
+            return "Max"
 
         spec.path(
-            view=greeting,
+            view=pet,
             operations={
-                "get": {"description": "get a greeting", "responses": {"200": {}}},
-                "post": {"description": "post a greeting", "responses": {"200": {}}},
+                "get": {"description": "get a pet's name", "responses": {"200": {}}},
+                "post": {"description": "register a pet", "responses": {"200": {}}},
             },
         )
         paths = utils.get_paths(spec)
-        get_op = paths["/hello"]["get"]
-        post_op = paths["/hello"]["post"]
-        assert get_op["description"] == "get a greeting"
-        assert post_op["description"] == "post a greeting"
+        get_op = paths["/pet"]["get"]
+        post_op = paths["/pet"]["post"]
+        assert get_op["description"] == "get a pet's name"
+        assert post_op["description"] == "register a pet"
 
     def test_methods_from_rule(self, app, spec):
-        class GreetingView(MethodView):
-            """The greeting view."""
+        class PetView(MethodView):
+            """A view for pets."""
 
             def get(self):
-                """A greeting endpoint.
+                """Get a pet's name.
                 ---
-                description: get a greeting
+                description: get a pet's name
                 responses:
                     200:
-                        description: received greeting
+                        description: the pet's name
                 """
-                return "hello"
+                return "Max"
 
             def post(self):
                 return {}
@@ -111,138 +111,122 @@ class TestFlaskPlugin:
             def delete(self):
                 return {}
 
-        method_view = GreetingView.as_view("hello")
-        app.add_url_rule("/hello", view_func=method_view, methods=("GET", "POST"))
+        method_view = PetView.as_view("pet")
+        app.add_url_rule("/pet", view_func=method_view, methods=("GET", "POST"))
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-        assert "get" in paths["/hello"]
-        assert "post" in paths["/hello"]
-        assert "delete" not in paths["/hello"]
+        assert "get" in paths["/pet"]
+        assert "post" in paths["/pet"]
+        assert "delete" not in paths["/pet"]
 
     def test_docstring_introspection(self, app, spec):
-        @app.route("/hello")
-        def greeting():
-            """A greeting endpoint.
+        @app.route("/pet")
+        def pet():
+            """Get a pet's name.
             ---
             x-extension: value
             get:
-                description: get a greeting
+                description: get a pet's name
                 responses:
                     200:
-                        description: received greeting
+                        description: the pet's name
             post:
-                description: post a greeting
+                description: register a pet
                 responses:
                     200:
-                        description: delivered greeting
+                        description: the registered pet's name
             foo:
                 description: not a valid operation
             """
-            return "hello"
+            return "Max"
 
-        spec.path(view=greeting)
+        spec.path(view=pet)
         paths = utils.get_paths(spec)
-        assert paths["/hello"]["x-extension"] == "value"
-        assert paths["/hello"]["get"] == {
-            "description": "get a greeting",
-            "responses": {"200": {"description": "received greeting"}},
+        assert paths["/pet"]["x-extension"] == "value"
+        assert paths["/pet"]["get"] == {
+            "description": "get a pet's name",
+            "responses": {"200": {"description": "the pet's name"}},
         }
-        assert paths["/hello"]["post"] == {
-            "description": "post a greeting",
-            "responses": {"200": {"description": "delivered greeting"}},
+        assert paths["/pet"]["post"] == {
+            "description": "register a pet",
+            "responses": {"200": {"description": "the registered pet's name"}},
         }
-        assert "foo" not in paths["/hello"]
+        assert "foo" not in paths["/pet"]
 
     def test_specs_from_decorator(self, app, spec):
-        class GreetingView(MethodView):
+        class PetView(MethodView):
             @spec_from(
                 {
-                    "description": "get a greeting",
-                    "responses": {200: {"description": "received greeting"}},
+                    "description": "get a pet's name",
+                    "responses": {"200": {"description": "the pet's name"}},
                 }
             )
             def get(self):
-                """A greeting endpoint."""
-                return "hello"
+                """Get a pet's name."""
+                return "Max"
 
-        method_view = GreetingView.as_view("hello")
-        app.add_url_rule("/hello", view_func=method_view)
+        method_view = PetView.as_view("pet")
+        app.add_url_rule("/pet", view_func=method_view)
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
-        assert paths["/hello"]["get"] == {
-            "summary": "A greeting endpoint.",
-            "description": "get a greeting",
-            "responses": {"200": {"description": "received greeting"}},
+        assert paths["/pet"]["get"] == {
+            "summary": "Get a pet's name.",
+            "description": "get a pet's name",
+            "responses": {"200": {"description": "the pet's name"}},
         }
 
     def test_path_is_translated_to_swagger_template(self, app, spec):
-        @app.route("/hello/<user_id>")
-        def hello_user(user_id):
-            return f"greeting sent to user {user_id}"
+        @app.route("/pet/<name>")
+        def pet(name):
+            return name
 
-        spec.path(view=hello_user)
-        assert "/hello/{user_id}" in utils.get_paths(spec)
+        spec.path(view=pet)
+        assert "/pet/{name}" in utils.get_paths(spec)
 
     def test_explicit_app_kwarg(self, spec):
         app = Flask(__name__)
 
-        @app.route("/bye")
-        def bye():
-            return "bye"
+        @app.route("/pet")
+        def pet():
+            return "Max"
 
-        spec.path(view=bye, app=app)
-        assert "/bye" in utils.get_paths(spec)
+        spec.path(view=pet, app=app)
+        assert "/pet" in utils.get_paths(spec)
 
     def test_auto_responses(self, app, spec):
-        class ResponsesView(MethodView):
-            """The greeting view."""
+        class PetView(MethodView):
+            """A view for pets."""
 
             def get(self):
-                """A greeting endpoint.
+                """Get a pet's name.
                 ---
-                description: get a greeting
+                description: get a pet's name
                 responses:
                     200:
-                        description: received greeting
+                        description: the pet's name
                     400:
                     404:
-                        description: greeting not found
+                        description: pet not found
                     default:
                         description: unexpected error
                 """
-                return "hello"
+                return "Max"
 
-        method_view = ResponsesView.as_view("responses")
-        app.add_url_rule("/hello", view_func=method_view)
+        method_view = PetView.as_view("pet")
+        app.add_url_rule("/pet", view_func=method_view)
         spec.path(view=method_view)
         paths = utils.get_paths(spec)
 
-        assert paths["/hello"]["get"] == {
-            "summary": "A greeting endpoint.",
-            "description": "get a greeting",
+        assert paths["/pet"]["get"] == {
+            "summary": "Get a pet's name.",
+            "description": "get a pet's name",
             "responses": {
-                "200": {"description": "received greeting"},
-                "400": {
-                    "$ref": "#/responses/BadRequest"
-                    if spec.openapi_version.major < 3
-                    else "#/components/responses/BadRequest"
-                },
-                "404": {"description": "greeting not found"},
+                "200": {"description": "the pet's name"},
+                "400": utils.build_ref(spec, "response", "BadRequest"),
+                "404": {"description": "pet not found"},
                 "default": {"description": "unexpected error"},
             },
         }
 
-        if spec.openapi_version.major < 3:
-            assert spec.to_dict()["responses"] == {
-                "BadRequest": {"schema": {"$ref": "#/definitions/HTTPResponse"}}
-            }
-        else:
-            assert utils.get_responses(spec) == {
-                "BadRequest": {
-                    "content": {
-                        "application/json": {
-                            "schema": {"$ref": "#/components/schemas/HTTPResponse"}
-                        }
-                    }
-                },
-            }
+        ref = utils.build_ref(spec, "schema", "HTTPResponse")
+        assert utils.get_schema(spec, utils.get_responses(spec)["BadRequest"]) == ref
