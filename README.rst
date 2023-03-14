@@ -21,7 +21,7 @@ apispec-plugins
     :target: https://github.com/OAI/OpenAPI-Specification
     :alt: OpenAPI Specification 2/3 compatible
 .. image:: https://img.shields.io/pypi/pyversions/apispec-plugins
-   :alt: PyPI - Python Version
+   :alt: Python compatibility
 
 `APISpec <https://github.com/marshmallow-code/apispec>`__ plugins for easy
 integration with different components (web frameworks, packages, etc).
