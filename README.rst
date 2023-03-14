@@ -26,8 +26,8 @@ Features
 * Supports the OpenAPI Specification (versions 2 and 3)
 * Currently supported frameworks/plugins include:
 
-  * ``apispec_plugins.ext.pydantic``
   * ``apispec_plugins.webframeworks.flask``
+  * ``apispec_plugins.ext.pydantic``
 
 Installation
 ============
@@ -37,12 +37,12 @@ Install the package directly from ``PyPI`` (recommended):
 
    $ pip install apispec-plugins
 
-Plugin dependencies like ``pydantic`` and ``flask`` are not installed with the package by default. To
-have ``pydantic`` and ``flask`` installed, run:
+Plugin dependencies like ``flask`` and ``pydantic`` are not installed with the package by default. To
+have ``flask`` and ``pydantic`` installed, run:
 
 .. code-block:: bash
 
-   $ pip install apispec-plugins[pydantic,flask]
+   $ pip install apispec-plugins[flask,pydantic]
 
 Example Usage
 =============
