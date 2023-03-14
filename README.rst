@@ -28,8 +28,8 @@ integration with different components (web frameworks, packages, etc).
 
 Features
 ========
-* Supports the OpenAPI Specification (versions 2 and 3)
-* Currently supported frameworks/plugins include:
+* Support for the OpenAPI Specification (versions 2 and 3)
+* Support for frameworks/plugins which include:
 
   * ``apispec_plugins.webframeworks.flask``
   * ``apispec_plugins.ext.pydantic``
