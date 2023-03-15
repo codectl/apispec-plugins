@@ -21,16 +21,16 @@ class AuthSchemes:
 @dataclass
 class HTTPResponse:
     code: int
-    description: str | None
+    description: str | None = None
 
 
 @dataclass
 class Server:
     url: str
-    description: str | None
+    description: str | None = None
 
 
 @dataclass
 class Tag:
     name: str
-    description: str | None
+    description: str | None = None
