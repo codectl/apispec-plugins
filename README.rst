@@ -11,17 +11,17 @@ apispec-plugins
 .. image:: https://codecov.io/gh/codectl/apispec-plugins/branch/master/graph/badge.svg
     :target: https://app.codecov.io/gh/codectl/apispec-plugins/branch/master
     :alt: codecov
+.. image:: https://img.shields.io/badge/OAS-2_|_3-14ACBB.svg
+    :target: https://github.com/OAI/OpenAPI-Specification
+    :alt: OpenAPI Specification 2/3 compatible
+.. image:: https://img.shields.io/pypi/pyversions/apispec-plugins
+   :alt: Python compatibility
 .. image:: https://img.shields.io/badge/code_style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: code style: black
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: license: MIT
-.. image:: https://img.shields.io/badge/OAS-2_|_3-14ACBB.svg
-    :target: https://github.com/OAI/OpenAPI-Specification
-    :alt: OpenAPI Specification 2/3 compatible
-.. image:: https://img.shields.io/pypi/pyversions/apispec-plugins
-   :alt: Python compatibility
 
 `APISpec <https://github.com/marshmallow-code/apispec>`__ plugins for easy
 integration with different components (web frameworks, packages, etc).
