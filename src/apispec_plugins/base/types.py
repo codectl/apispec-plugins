@@ -1,6 +1,13 @@
-from __future__ import annotations
+from typing import Optional
 
-from dataclasses import dataclass
+try:
+    from pydantic.dataclasses import dataclass
+    from apispec_plugins.base import registry
+    base = registry.RegistryMixin
+except ImportError:
+    from dataclasses import dataclass
+    registry = None
+    base = object
 
 
 __all__ = (
@@ -19,18 +26,18 @@ class AuthSchemes:
 
 
 @dataclass
-class HTTPResponse:
+class HTTPResponse(base):
     code: int
-    description: str | None = None
+    description: Optional[str] = None
 
 
 @dataclass
 class Server:
     url: str
-    description: str | None = None
+    description: Optional[str] = None
 
 
 @dataclass
 class Tag:
     name: str
-    description: str | None = None
+    description: Optional[str] = None
