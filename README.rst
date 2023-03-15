@@ -15,7 +15,8 @@ apispec-plugins
     :target: https://github.com/OAI/OpenAPI-Specification
     :alt: OpenAPI Specification 2/3 compatible
 .. image:: https://img.shields.io/pypi/pyversions/apispec-plugins
-   :alt: Python compatibility
+    :target: https://pypi.org/project/apispec-plugins
+    :alt: Python compatibility
 .. image:: https://img.shields.io/badge/code_style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: code style: black
