@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -19,16 +21,16 @@ class AuthSchemes:
 @dataclass
 class HTTPResponse:
     code: int
-    description: str
+    description: str | None
 
 
 @dataclass
 class Server:
     url: str
-    description: str
+    description: str | None
 
 
 @dataclass
 class Tag:
     name: str
-    description: str
+    description: str | None
