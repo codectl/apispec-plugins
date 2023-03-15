@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "apispec-plugins"
-version = "1.0.0"
+version = "1.0.1"
 description = "Plugins for apispec"
 authors = ["Renato Damas <rena2damas@gmail.com>"]
 license = "MIT"
