@@ -1,6 +1,7 @@
 import pytest
 from apispec import APISpec
 from apispec_plugins import FlaskPlugin, spec_from
+from apispec_plugins.ext.pydantic import PydanticPlugin
 from flask import Flask
 from flask.views import MethodView
 
@@ -30,16 +31,14 @@ class TestFlaskPlugin:
         def pet():
             return "Max"
 
-        operations = {
+        spec.path(view=pet, operations={
             "get": {
-                "parameters": [],
-                "responses": {"200": {"description": "get a pet"}},
+                "responses": {200: {"description": "get a pet"}},
             }
-        }
-        spec.path(view=pet, operations=operations)
+        })
         paths = utils.get_paths(spec)
         assert "get" in paths["/pet"]
-        assert paths["/pet"] == operations
+        assert paths["/pet"]["get"]["responses"]["200"] == {"description": "get a pet"}
 
     def test_method_view(self, app, spec):
         class PetView(MethodView):
@@ -81,8 +80,8 @@ class TestFlaskPlugin:
         spec.path(
             view=pet,
             operations={
-                "get": {"description": "get a pet's name", "responses": {"200": {}}},
-                "post": {"description": "register a pet", "responses": {"200": {}}},
+                "get": {"description": "get a pet's name", "responses": {200: {}}},
+                "post": {"description": "register a pet", "responses": {200: {}}},
             },
         )
         paths = utils.get_paths(spec)
@@ -158,7 +157,7 @@ class TestFlaskPlugin:
             @spec_from(
                 {
                     "description": "get a pet's name",
-                    "responses": {"200": {"description": "the pet's name"}},
+                    "responses": {200: {"description": "the pet's name"}},
                 }
             )
             def get(self):
