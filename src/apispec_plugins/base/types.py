@@ -3,9 +3,11 @@ from typing import Optional
 try:
     from pydantic.dataclasses import dataclass
     from apispec_plugins.base import registry
+
     base = registry.RegistryMixin
 except ImportError:
     from dataclasses import dataclass
+
     registry = None
     base = object
 
