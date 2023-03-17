@@ -47,7 +47,7 @@ pydantic = { version = "^1.10.6", optional = true }
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
-coverage = "^7.2.1"
+coverage = "^7.2.2"
 flask = "^2.1.2"
 pre-commit = "^3.1.1"
 pydantic = "^1.10.5"
