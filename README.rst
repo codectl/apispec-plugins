@@ -57,7 +57,7 @@ Example Usage
     from typing import Optional
 
     from apispec import APISpec
-    from apispec_plugins.base.registry import RegistryMixin
+    from apispec_plugins.base.mixin import RegistryMixin
     from apispec_plugins.ext.pydantic import PydanticPlugin
     from apispec_plugins.webframeworks.flask import FlaskPlugin
     from flask import Flask
