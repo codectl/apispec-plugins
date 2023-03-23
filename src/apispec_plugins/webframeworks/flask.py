@@ -77,9 +77,7 @@ class FlaskPlugin(BasePlugin):
                         if http_schema_name not in self.spec.components.schemas:
                             self.spec.components.schema(
                                 component_id=http_schema_name,
-                                component=spec_utils.dataclass_schema_resolver(
-                                    types.HTTPResponse
-                                ),
+                                component=types.HTTPResponse.schema(),
                             )
 
                         if schema_name not in self.spec.components.responses:
