@@ -3,20 +3,20 @@ from __future__ import annotations
 from typing import TypeVar
 
 __all__ = (
-    "RegistryMixin",
+    "Registry",
     "RegistryError",
 )
 
 T = TypeVar("T")
 
 
-class RegistryMixin:
-
+class Registry:
     _registry: dict[str, T] = {}
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls._registry[cls.__name__] = cls
+    @classmethod
+    def register(cls, record: T):
+        if record.__name__ not in cls._registry:
+            cls._registry[record.__name__] = record
 
     @classmethod
     def get_registry(cls):
