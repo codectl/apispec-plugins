@@ -1,15 +1,7 @@
+from dataclasses import dataclass
 from typing import Optional
 
-try:
-    from pydantic.dataclasses import dataclass
-    from apispec_plugins.base import registry
-
-    base = registry.RegistryMixin
-except ImportError:
-    from dataclasses import dataclass
-
-    registry = None
-    base = object
+from apispec_plugins.base.mixin import DataclassSchemaMixin
 
 
 __all__ = (
@@ -28,7 +20,7 @@ class AuthSchemes:
 
 
 @dataclass
-class HTTPResponse(base):
+class HTTPResponse(DataclassSchemaMixin):
     code: int
     description: Optional[str] = None
 
