@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 from apispec import APISpec
 from apispec.exceptions import DuplicateComponentNameError
-from apispec_plugins.base.registry import RegistryMixin
+from apispec_plugins.base.mixin import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
 from pydantic import BaseModel
 
