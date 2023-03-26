@@ -2,7 +2,7 @@ from dataclasses import MISSING, fields
 from typing import get_args
 
 from apispec import APISpec
-from apispec.ext.marshmallow.openapi import OpenAPIConverter, marshmallow as ma
+from apispec.ext.marshmallow.openapi import OpenAPIConverter
 from apispec_plugins.base.registry import Registry
 
 
@@ -23,10 +23,12 @@ class DataclassSchemaMixin:
             return model.schema()
 
         # or fallback to marshmallow resolver
-        return cls.dataclass_schema()
+        return cls.marshmallow_resolver()
 
     @classmethod
-    def dataclass_schema(cls, openapi_version="2.0"):
+    def marshmallow_resolver(cls, openapi_version="2.0"):
+        from apispec.ext.marshmallow.openapi import marshmallow as ma
+
         openapi_converter = OpenAPIConverter(
             openapi_version=openapi_version,
             schema_name_resolver=lambda f: None,
