@@ -26,11 +26,11 @@ class DataclassSchemaMixin:
         return cls.dataclass_schema()
 
     @classmethod
-    def dataclass_schema(cls, default_version="2.0"):
+    def dataclass_schema(cls, openapi_version="2.0"):
         openapi_converter = OpenAPIConverter(
-            openapi_version=default_version,
+            openapi_version=openapi_version,
             schema_name_resolver=lambda f: None,
-            spec=APISpec("", "", default_version),
+            spec=APISpec("", "", openapi_version),
         )
 
         def schema_type(t):
