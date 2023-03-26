@@ -1,13 +1,17 @@
-from __future__ import annotations
+try:
+    from pydantic.dataclasses import dataclass
+except ImportError:
+    from dataclasses import dataclass
+from typing import Optional
 
-from dataclasses import dataclass
+from apispec_plugins.base.mixin import DataclassSchemaMixin
 
 
 __all__ = (
     "AuthSchemes",
-    "HTTPResponse",
     "Server",
     "Tag",
+    "HTTPResponse",
 )
 
 
@@ -19,18 +23,18 @@ class AuthSchemes:
 
 
 @dataclass
-class HTTPResponse:
-    code: int
-    description: str | None = None
-
-
-@dataclass
 class Server:
     url: str
-    description: str | None = None
+    description: Optional[str] = None
 
 
 @dataclass
 class Tag:
     name: str
-    description: str | None = None
+    description: Optional[str] = None
+
+
+@dataclass
+class HTTPResponse(DataclassSchemaMixin):
+    code: int
+    description: Optional[str] = None

@@ -1,11 +1,16 @@
 import pytest
 from apispec import APISpec
-from apispec_plugins import FlaskPlugin, spec_from
-from apispec_plugins.ext.pydantic import PydanticPlugin
+from apispec_plugins import FlaskPlugin, PydanticPlugin, spec_from
 from flask import Flask
 from flask.views import MethodView
 
-from .. import utils
+from ..utils import (
+    build_ref,
+    get_paths,
+    get_responses,
+    get_schema,
+    get_schemas,
+)
 
 
 @pytest.fixture()
@@ -15,7 +20,7 @@ def app():
         yield app
 
 
-@pytest.fixture(scope="function", params=("2.0", "3.1.0"))
+@pytest.fixture(scope="function", params=("2.0", "3.0.3"))
 def spec(request):
     return APISpec(
         title="Swagger Petstore",
@@ -31,12 +36,15 @@ class TestFlaskPlugin:
         def pet():
             return "Max"
 
-        spec.path(view=pet, operations={
-            "get": {
-                "responses": {200: {"description": "get a pet"}},
-            }
-        })
-        paths = utils.get_paths(spec)
+        spec.path(
+            view=pet,
+            operations={
+                "get": {
+                    "responses": {200: {"description": "get a pet"}},
+                }
+            },
+        )
+        paths = get_paths(spec)
         assert "get" in paths["/pet"]
         assert paths["/pet"]["get"]["responses"]["200"] == {"description": "get a pet"}
 
@@ -63,7 +71,7 @@ class TestFlaskPlugin:
         method_view = PetView.as_view("pet")
         app.add_url_rule("/pet", view_func=method_view, methods=("GET", "POST"))
         spec.path(view=method_view)
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
         assert paths["/pet"]["get"] == {
             "summary": "Get a pet's name.",
             "description": "get a pet's name",
@@ -84,7 +92,7 @@ class TestFlaskPlugin:
                 "post": {"description": "register a pet", "responses": {200: {}}},
             },
         )
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
         get_op = paths["/pet"]["get"]
         post_op = paths["/pet"]["post"]
         assert get_op["description"] == "get a pet's name"
@@ -113,7 +121,7 @@ class TestFlaskPlugin:
         method_view = PetView.as_view("pet")
         app.add_url_rule("/pet", view_func=method_view, methods=("GET", "POST"))
         spec.path(view=method_view)
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
         assert "get" in paths["/pet"]
         assert "post" in paths["/pet"]
         assert "delete" not in paths["/pet"]
@@ -140,7 +148,7 @@ class TestFlaskPlugin:
             return "Max"
 
         spec.path(view=pet)
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
         assert paths["/pet"]["x-extension"] == "value"
         assert paths["/pet"]["get"] == {
             "description": "get a pet's name",
@@ -167,7 +175,7 @@ class TestFlaskPlugin:
         method_view = PetView.as_view("pet")
         app.add_url_rule("/pet", view_func=method_view)
         spec.path(view=method_view)
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
         assert paths["/pet"]["get"] == {
             "summary": "Get a pet's name.",
             "description": "get a pet's name",
@@ -180,7 +188,7 @@ class TestFlaskPlugin:
             return name
 
         spec.path(view=pet)
-        assert "/pet/{name}" in utils.get_paths(spec)
+        assert "/pet/{name}" in get_paths(spec)
 
     def test_explicit_app_kwarg(self, spec):
         app = Flask(__name__)
@@ -190,7 +198,7 @@ class TestFlaskPlugin:
             return "Max"
 
         spec.path(view=pet, app=app)
-        assert "/pet" in utils.get_paths(spec)
+        assert "/pet" in get_paths(spec)
 
     def test_auto_responses(self, app, spec):
         class PetView(MethodView):
@@ -214,18 +222,64 @@ class TestFlaskPlugin:
         method_view = PetView.as_view("pet")
         app.add_url_rule("/pet", view_func=method_view)
         spec.path(view=method_view)
-        paths = utils.get_paths(spec)
+        paths = get_paths(spec)
 
         assert paths["/pet"]["get"] == {
             "summary": "Get a pet's name.",
             "description": "get a pet's name",
             "responses": {
                 "200": {"description": "the pet's name"},
-                "400": utils.build_ref(spec, "response", "BadRequest"),
+                "400": build_ref(spec, "response", "BadRequest"),
                 "404": {"description": "pet not found"},
                 "default": {"description": "unexpected error"},
             },
         }
 
-        ref = utils.build_ref(spec, "schema", "HTTPResponse")
-        assert utils.get_schema(spec, utils.get_responses(spec)["BadRequest"]) == ref
+        ref = build_ref(spec, "schema", "HTTPResponse")
+        assert get_schema(spec, get_responses(spec)["BadRequest"]) == ref
+
+    def test_default_dataclass_resolver(self, app, spec, mocker):
+        model = "apispec_plugins.base.types.HTTPResponse"
+        mocker.patch(f"{model}.__pydantic_model__", None)
+
+        @app.route("/pet")
+        def pet():
+            return "Max"
+
+        spec.path(view=pet, operations={"get": {"responses": {400: None}}})
+
+        paths = get_paths(spec)
+        ref = build_ref(spec, "schema", "HTTPResponse")
+        assert "get" in paths["/pet"]
+        assert get_schema(spec, get_responses(spec)["BadRequest"]) == ref
+        assert "HTTPResponse" in get_schemas(spec)
+
+    @pytest.mark.parametrize("version", ("2.0", "3.0.3"))
+    def test_pydantic_plugin(self, app, version):
+        spec = APISpec(
+            title="Swagger Petstore",
+            version="1.0.0",
+            openapi_version=version,
+            plugins=(FlaskPlugin(), PydanticPlugin()),
+        )
+
+        @app.route("/pet")
+        def pet():
+            return "Max"
+
+        response = {"schema": "Pet"}
+        if spec.openapi_version.major >= 3:
+            response = {"content": {"application/json": response}}
+
+        spec.path(
+            view=pet, operations={"get": {"responses": {200: response, 400: None}}}
+        )
+
+        responses = get_paths(spec)["/pet"]["get"]["responses"]
+        pet_ref = build_ref(spec, "schema", "Pet")
+        response_ref = build_ref(spec, "schema", "HTTPResponse")
+        assert get_schema(spec, responses["200"]) == pet_ref
+        assert responses["400"] == build_ref(spec, "response", "BadRequest")
+        assert get_schema(spec, get_responses(spec)["BadRequest"]) == response_ref
+        assert "Pet" in get_schemas(spec)
+        assert "HTTPResponse" in get_schemas(spec)

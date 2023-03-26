@@ -5,7 +5,7 @@ from typing import Any
 
 from apispec import BasePlugin, APISpec
 from apispec.exceptions import APISpecError, DuplicateComponentNameError
-from apispec_plugins.base import registry
+from apispec_plugins.base.registry import Registry
 from pydantic import BaseModel
 
 
@@ -152,7 +152,7 @@ class OASResolver:
         elif isinstance(schema, BaseModel):
             return schema.__class__
         elif isinstance(schema, str):
-            return registry.RegistryMixin.get_cls(schema)
+            return Registry.get_cls(schema)
         return None
 
     @classmethod

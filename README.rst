@@ -57,7 +57,7 @@ Example Usage
     from typing import Optional
 
     from apispec import APISpec
-    from apispec_plugins.base.registry import RegistryMixin
+    from apispec_plugins.base.mixin import RegistryMixin
     from apispec_plugins.ext.pydantic import PydanticPlugin
     from apispec_plugins.webframeworks.flask import FlaskPlugin
     from flask import Flask
@@ -68,7 +68,7 @@ Example Usage
     spec = APISpec(
         title="Pet Store",
         version="1.0.0",
-        openapi_version="3.1.0",
+        openapi_version="3.0.3",
         info=dict(description="A minimal pet store API"),
         plugins=(FlaskPlugin(), PydanticPlugin()),
     )
