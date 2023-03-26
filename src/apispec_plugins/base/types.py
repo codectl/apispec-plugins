@@ -1,4 +1,7 @@
-from dataclasses import dataclass
+try:
+    from pydantic.dataclasses import dataclass
+except ImportError:
+    from dataclasses import dataclass
 from typing import Optional
 
 from apispec_plugins.base.mixin import DataclassSchemaMixin
@@ -6,9 +9,9 @@ from apispec_plugins.base.mixin import DataclassSchemaMixin
 
 __all__ = (
     "AuthSchemes",
-    "HTTPResponse",
     "Server",
     "Tag",
+    "HTTPResponse",
 )
 
 
@@ -20,12 +23,6 @@ class AuthSchemes:
 
 
 @dataclass
-class HTTPResponse(DataclassSchemaMixin):
-    code: int
-    description: Optional[str] = None
-
-
-@dataclass
 class Server:
     url: str
     description: Optional[str] = None
@@ -34,4 +31,10 @@ class Server:
 @dataclass
 class Tag:
     name: str
+    description: Optional[str] = None
+
+
+@dataclass
+class HTTPResponse(DataclassSchemaMixin):
+    code: int
     description: Optional[str] = None
