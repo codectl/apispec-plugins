@@ -1,5 +1,5 @@
-from dataclasses import MISSING, dataclass, fields
-from typing import Type, get_args
+from dataclasses import MISSING, fields
+from typing import get_args
 
 from apispec import APISpec
 from apispec.ext.marshmallow.openapi import OpenAPIConverter, marshmallow as ma
@@ -17,7 +17,7 @@ class DataclassSchemaMixin:
     def schema(cls):
 
         # resolve pydantic schema
-        model = getattr(cls, "__pydantic_model__")
+        model = getattr(cls, "__pydantic_model__", None)
         if model:
             Registry.register(model)
             return model.schema()
