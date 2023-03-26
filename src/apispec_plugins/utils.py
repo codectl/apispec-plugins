@@ -5,8 +5,8 @@ import urllib.parse
 from dataclasses import asdict
 
 from apispec import yaml_utils
-
 from apispec_plugins.base import types
+
 
 __all__ = (
     "spec_from",
