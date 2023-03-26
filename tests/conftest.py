@@ -1,9 +1,8 @@
 from typing import Optional
 
-from apispec_plugins.base.mixin import RegistryMixin
-from pydantic import BaseModel
+from apispec_plugins.ext.pydantic import BaseModel
 
 
-class Pet(BaseModel, RegistryMixin):
+class Pet(BaseModel):
     id: Optional[int]
     name: str
