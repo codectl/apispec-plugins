@@ -1,29 +1,44 @@
+from dataclasses import MISSING, dataclass, fields
+from typing import Type, get_args
+
 from apispec import APISpec
+from apispec.ext.marshmallow.openapi import OpenAPIConverter, marshmallow as ma
 from apispec_plugins.base.registry import Registry
 
 
 class RegistryMixin(Registry):
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.register(cls)
 
 
 class DataclassSchemaMixin:
-
     @classmethod
     def schema(cls):
-        try:
-            from pydantic.dataclasses import dataclass
-            from apispec_plugins.base.registry import Registry
-            model = dataclass(cls).__pydantic_model__
+
+        # resolve pydantic schema
+        model = getattr(cls, "__pydantic_model__")
+        if model:
             Registry.register(model)
-            print(model)
             return model.schema()
-        except ImportError:
-            from apispec.ext.marshmallow import OpenAPIConverter
-            openapi_converter = OpenAPIConverter(
-                openapi_version='2.0',
-                schema_name_resolver=lambda schema: None,
-                spec=APISpec(),
-            )
+
+        # or fallback to marshmallow resolver
+        return cls.dataclass_schema()
+
+    @classmethod
+    def dataclass_schema(cls, default_version="2.0"):
+        openapi_converter = OpenAPIConverter(
+            openapi_version=default_version,
+            schema_name_resolver=lambda f: None,
+            spec=APISpec("", "", default_version),
+        )
+
+        def schema_type(t):
+            return ma.Schema.TYPE_MAPPING[next(iter(get_args(t)), t)]
+
+        schema_dict = {
+            f.name: schema_type(f.type)(data_key=f.name, required=f.default is MISSING)
+            for f in fields(cls)
+        }
+        schema = ma.Schema.from_dict(schema_dict)
+        return openapi_converter.schema2jsonschema(schema)
