@@ -15,7 +15,7 @@ from ..utils import (
 )
 
 
-@pytest.fixture(params=("2.0", "3.1.0"))
+@pytest.fixture(params=("2.0", "3.0.3"))
 def spec(request):
     return APISpec(
         title="Swagger Petstore",
@@ -48,7 +48,7 @@ class TestPydanticPlugin:
             {"in": "path", "name": "name", "schema": props["name"], "required": True},
         ]
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_resolve_parameter_v3(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
@@ -77,7 +77,7 @@ class TestPydanticPlugin:
         ]
         assert "Pet" in get_schemas(spec)
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_resolve_request_body(self, spec, schema):
         content = {"content": {"application/json": {"schema": schema}}}
         spec.path(
@@ -90,7 +90,7 @@ class TestPydanticPlugin:
         assert get_schema(spec, base=path["post"]["requestBody"]) == pet_ref
         assert "Pet" in get_schemas(spec)
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_resolve_callback(self, spec, schema):
         content = {"content": {"application/json": {"schema": schema}}}
         spec.path(
@@ -133,7 +133,7 @@ class TestPydanticPlugin:
         assert response_ref == build_ref(spec, "schema", "Pet")
         assert "Pet" in get_schemas(spec)
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_resolve_one_of_object_response(self, spec, schema):
         one_of = [schema, {"type": "array", "items": schema}]
         content = {"content": {"application/json": {"schema": {"oneOf": one_of}}}}
@@ -147,7 +147,7 @@ class TestPydanticPlugin:
         assert response_ref["oneOf"] == [pet_ref, {"type": "array", "items": pet_ref}]
         assert "Pet" in get_schemas(spec)
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_resolve_response_header(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
@@ -186,7 +186,7 @@ class TestPydanticPlugin:
         pet_ref = build_ref(spec, "schema", "Pet")
         assert get_schema(spec, get_responses(spec)["Pet"]) == pet_ref
 
-    @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
+    @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
     def test_component_header(self, spec, schema):
         header = {"schema": schema}
         spec.components.header("Pet", component=header)

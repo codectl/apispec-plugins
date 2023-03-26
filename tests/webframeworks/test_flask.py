@@ -254,7 +254,7 @@ class TestFlaskPlugin:
         assert get_schema(spec, get_responses(spec)["BadRequest"]) == ref
         assert "HTTPResponse" in get_schemas(spec)
 
-    @pytest.mark.parametrize("version", ("2.0", "3.1.0"))
+    @pytest.mark.parametrize("version", ("2.0", "3.0.3"))
     def test_pydantic_plugin(self, app, version):
         spec = APISpec(
             title="Swagger Petstore",

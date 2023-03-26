@@ -68,7 +68,7 @@ Example Usage
     spec = APISpec(
         title="Pet Store",
         version="1.0.0",
-        openapi_version="3.1.0",
+        openapi_version="3.0.3",
         info=dict(description="A minimal pet store API"),
         plugins=(FlaskPlugin(), PydanticPlugin()),
     )
