@@ -1,18 +1,18 @@
-from typing import Optional
-
 import pytest
 from apispec import APISpec
 from apispec.exceptions import DuplicateComponentNameError
-from apispec_plugins.base.mixin import RegistryMixin
 from apispec_plugins.ext.pydantic import PydanticPlugin
-from pydantic import BaseModel
 
-from .. import utils
-
-
-class Pet(BaseModel, RegistryMixin):
-    id: Optional[int]
-    name: str
+from ..conftest import Pet
+from ..utils import (
+    build_ref,
+    get_headers,
+    get_parameters,
+    get_paths,
+    get_responses,
+    get_schema,
+    get_schemas,
+)
 
 
 @pytest.fixture(params=("2.0", "3.1.0"))
@@ -41,7 +41,7 @@ class TestPydanticPlugin:
             operations={"get": {"parameters": [{"in": "path", "schema": schema}]}},
         )
 
-        path = utils.get_paths(spec)["/pet/{petId}"]
+        path = get_paths(spec)["/pet/{petId}"]
         props = Pet.schema()["properties"]
         assert path["get"]["parameters"] == [
             {"in": "path", "name": "id", "schema": props["id"], "required": True},
@@ -65,19 +65,17 @@ class TestPydanticPlugin:
             },
         )
 
-        path = utils.get_paths(spec)["/pet/{petId}"]
+        path = get_paths(spec)["/pet/{petId}"]
         assert path["get"]["parameters"] == [
             {
                 "in": "query",
                 "name": "pet",
                 "content": {
-                    "application/json": {
-                        "schema": utils.build_ref(spec, "schema", "Pet")
-                    }
+                    "application/json": {"schema": build_ref(spec, "schema", "Pet")}
                 },
             },
         ]
-        assert "Pet" in utils.get_schemas(spec)
+        assert "Pet" in get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_resolve_request_body(self, spec, schema):
@@ -87,10 +85,10 @@ class TestPydanticPlugin:
             operations={"post": {"requestBody": content}},
         )
 
-        path = utils.get_paths(spec)["/pet"]
-        pet_ref = utils.build_ref(spec, "schema", "Pet")
-        assert utils.get_schema(spec, base=path["post"]["requestBody"]) == pet_ref
-        assert "Pet" in utils.get_schemas(spec)
+        path = get_paths(spec)["/pet"]
+        pet_ref = build_ref(spec, "schema", "Pet")
+        assert get_schema(spec, base=path["post"]["requestBody"]) == pet_ref
+        assert "Pet" in get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_resolve_callback(self, spec, schema):
@@ -106,11 +104,11 @@ class TestPydanticPlugin:
             },
         )
 
-        path = utils.get_paths(spec)["/pet"]
+        path = get_paths(spec)["/pet"]
         callback = path["post"]["callbacks"]["onEvent"]["/callback"]
-        pet_ref = utils.build_ref(spec, "schema", "Pet")
-        assert utils.get_schema(spec, callback["post"]["requestBody"]) == pet_ref
-        assert "Pet" in utils.get_schemas(spec)
+        pet_ref = build_ref(spec, "schema", "Pet")
+        assert get_schema(spec, callback["post"]["requestBody"]) == pet_ref
+        assert "Pet" in get_schemas(spec)
 
     def test_resolve_single_object_response(self, spec, schema):
         response = {"schema": schema}
@@ -119,10 +117,10 @@ class TestPydanticPlugin:
         operations = {"get": {"responses": {"200": response}}}
         spec.path(path="/pet/{petId}", operations=operations)
 
-        path = utils.get_paths(spec)["/pet/{petId}"]
-        pet_ref = utils.build_ref(spec, "schema", "Pet")
-        assert utils.get_schema(spec, path["get"]["responses"]["200"]) == pet_ref
-        assert "Pet" in utils.get_schemas(spec)
+        path = get_paths(spec)["/pet/{petId}"]
+        pet_ref = build_ref(spec, "schema", "Pet")
+        assert get_schema(spec, path["get"]["responses"]["200"]) == pet_ref
+        assert "Pet" in get_schemas(spec)
 
     def test_resolve_multi_object_response(self, spec, schema):
         response = {"schema": {"type": "array", "items": schema}}
@@ -130,10 +128,10 @@ class TestPydanticPlugin:
             response = {"content": {"application/json": response}}
         spec.path(path="/pet", operations={"get": {"responses": {"200": response}}})
 
-        path = utils.get_paths(spec)["/pet"]
-        response_ref = utils.get_schema(spec, path["get"]["responses"]["200"])["items"]
-        assert response_ref == utils.build_ref(spec, "schema", "Pet")
-        assert "Pet" in utils.get_schemas(spec)
+        path = get_paths(spec)["/pet"]
+        response_ref = get_schema(spec, path["get"]["responses"]["200"])["items"]
+        assert response_ref == build_ref(spec, "schema", "Pet")
+        assert "Pet" in get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_resolve_one_of_object_response(self, spec, schema):
@@ -143,11 +141,11 @@ class TestPydanticPlugin:
             path="/pet/{petId}", operations={"get": {"responses": {"200": content}}}
         )
 
-        path = utils.get_paths(spec)["/pet/{petId}"]
-        response_ref = utils.get_schema(spec, base=path["get"]["responses"]["200"])
-        pet_ref = utils.build_ref(spec, "schema", "Pet")
+        path = get_paths(spec)["/pet/{petId}"]
+        response_ref = get_schema(spec, base=path["get"]["responses"]["200"])
+        pet_ref = build_ref(spec, "schema", "Pet")
         assert response_ref["oneOf"] == [pet_ref, {"type": "array", "items": pet_ref}]
-        assert "Pet" in utils.get_schemas(spec)
+        assert "Pet" in get_schemas(spec)
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_resolve_response_header(self, spec, schema):
@@ -160,14 +158,14 @@ class TestPydanticPlugin:
             },
         )
 
-        path = utils.get_paths(spec)["/pet/{petId}"]
+        path = get_paths(spec)["/pet/{petId}"]
         definition = path["get"]["responses"]["200"]["headers"]["X-Pet"]["schema"]
         assert isinstance(definition, dict)
         assert "properties" in definition
 
     def test_component_schema(self, spec, schema):
         spec.components.schema("Pet", model=schema)
-        assert "Pet" in utils.get_schemas(spec)
+        assert "Pet" in get_schemas(spec)
 
     def test_component_duplicate_schema_raises_error(self, spec, schema):
         spec.components.schema("Pet", model=schema)
@@ -177,7 +175,7 @@ class TestPydanticPlugin:
     def test_component_parameter(self, spec, schema):
         parameter = {"schema": schema}
         spec.components.parameter("Pet", location="path", component=parameter)
-        assert "Pet" in utils.get_parameters(spec)
+        assert "Pet" in get_parameters(spec)
 
     def test_component_response(self, spec, schema):
         response = {"schema": schema}
@@ -185,11 +183,11 @@ class TestPydanticPlugin:
             response = {"content": {"application/json": response}}
         spec.components.response("Pet", component=response)
 
-        pet_ref = utils.build_ref(spec, "schema", "Pet")
-        assert utils.get_schema(spec, utils.get_responses(spec)["Pet"]) == pet_ref
+        pet_ref = build_ref(spec, "schema", "Pet")
+        assert get_schema(spec, get_responses(spec)["Pet"]) == pet_ref
 
     @pytest.mark.parametrize("spec", ("3.1.0",), indirect=True)
     def test_component_header(self, spec, schema):
         header = {"schema": schema}
         spec.components.header("Pet", component=header)
-        assert "Pet" in utils.get_headers(spec)
+        assert "Pet" in get_headers(spec)
