@@ -102,6 +102,8 @@ class OASResolver:
                 for media_type in parameter["content"].values():
                     self.resolve_schema(media_type)
                 params.append(parameter)
+            else:
+                params.append(parameter)
         parameters[:] = params[:]
 
     def resolve_response(self, response: dict) -> None:

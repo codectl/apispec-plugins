@@ -38,14 +38,23 @@ class TestPydanticPlugin:
     def test_resolve_parameter(self, spec, schema):
         spec.path(
             path="/pet/{petId}",
-            operations={"get": {"parameters": [{"in": "path", "schema": schema}]}},
+            operations={
+                "get": {
+                    "parameters": [
+                        {"in": "path", "name": "petId", "schema": {"type": "string"}},
+                        {"in": "path", "schema": schema},
+                    ]
+                }
+            },
         )
 
         path = get_paths(spec)["/pet/{petId}"]
         props = Pet.schema()["properties"]
+        required = {"required": True}
         assert path["get"]["parameters"] == [
-            {"in": "path", "name": "id", "schema": props["id"], "required": True},
-            {"in": "path", "name": "name", "schema": props["name"], "required": True},
+            {"in": "path", "name": "petId", "schema": {"type": "string"}, **required},
+            {"in": "path", "name": "id", "schema": props["id"], **required},
+            {"in": "path", "name": "name", "schema": props["name"], **required},
         ]
 
     @pytest.mark.parametrize("spec", ("3.0.3",), indirect=True)
