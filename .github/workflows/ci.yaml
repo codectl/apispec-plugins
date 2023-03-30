@@ -42,7 +42,7 @@ jobs:
           os: ${{ matrix.os }}
       - name: Run test suite with tox
         shell: bash
-        run: tox -e py -- -p no:sugar -p no:warnings -q
+        run: tox -e py -- -vv -p no:warnings -q
 
   coverage:
     runs-on: ubuntu-latest
@@ -54,6 +54,6 @@ jobs:
           os: ubuntu-latest
       - name: Run coverage with tox
         shell: bash
-        run: tox -e coverage -- -p no:sugar -p no:warnings -q
+        run: tox -e coverage -- -p no:warnings -q
       - name: Submit coverage to codecov
         uses: codecov/codecov-action@v3
