@@ -16,7 +16,7 @@ jobs:
       # either title, body or source branch name
       - name: apply label
         if: ${{ github.event.action == 'opened' }}
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@v6
         with:
           disable-autolabeler: false
           disable-releaser: true
@@ -46,7 +46,7 @@ jobs:
 
       - name: update release notes if already merged
         id: update-release-notes
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@v6
         with:
           config-name: release-drafter.yaml
         env:
